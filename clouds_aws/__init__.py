@@ -1,21 +1,22 @@
 import argparse
 import json
 import logging
+import re
 import sys
+from codecs import open
+from os import path, listdir, mkdir
 from time import sleep
 
 import boto3
 import botocore.exceptions
-import re
 import yaml
-from codecs import open
-from os import path, listdir, mkdir
 
 cfn_client = None
 remote_stack_cache = None
 region = None  # None = default to environment
 
-logging.basicConfig(format='%(levelname)s: %(message)s')
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.WARNING)
+logger = logging.getLogger('clouds-aws')
 
 
 # aws functions
@@ -27,17 +28,6 @@ def get_cfn():
     if not cfn_client:
         cfn_client = boto3.client('cloudformation', region)
     return cfn_client
-
-
-def global_args(args):
-    """set some args as global vars so they don't need to passed through to low level functions"""
-    global region
-    region = args.region
-
-    if args.verbose:
-        logging.basicConfig(level=logging.INFO)
-    elif args.debug:
-        logging.basicConfig(level=logging.DEBUG)
 
 
 def local_stacks():
@@ -237,20 +227,18 @@ def normalize_tpl(tpl_body):
 # command functions
 def clone(args):
     """clone local stack"""
-    global_args(args)
     # source and destination paths
-
     src = args.stack
     dst = args.new_stack
 
     # require stack to exist locally
     if src not in local_stacks():
-        logging.error("no such local stack: " + src)
+        logger.error("no such local stack: " + src)
         sys.exit(1)
 
     # overwrite of existing local stack requires force
     if args.force and path.exists(path.join('stacks', dst)):
-        logging.warning('stack ' + dst + ' already exists, use --force to overwrite')
+        logger.warning('stack ' + dst + ' already exists, use --force to overwrite')
         sys.exit(1)
 
     save_template(dst, load_template(src))
@@ -260,18 +248,16 @@ def clone(args):
 
 def delete(args):
     """deletes a stack in AWS."""
-    global_args(args)
-
     stack = args.stack
 
     # deleting stacks requires force
     if not args.force:
-        logging.warning('this command might impact running environments and it needs the --force flag,' +
-                        'hopefully you know what you are doing')
+        logger.warning('this command might impact running environments and it needs the --force flag,' +
+                       'hopefully you know what you are doing')
         sys.exit(1)
 
     if stack not in remote_stacks():
-        logging.error("no such stack: " + stack)
+        logger.error("no such stack: " + stack)
         sys.exit(1)
 
     # last existing event - we only want to see newer events in case of --events
@@ -288,12 +274,10 @@ def delete(args):
 
 def describe(args):
     """outputs parameters, outputs, and resources of a stack"""
-    global_args(args)
-
     stack = args.stack
 
     if stack not in remote_stacks():
-        logging.error('no such stack: ' + stack)
+        logger.error('no such stack: ' + stack)
         sys.exit(1)
 
     # query API
@@ -368,8 +352,6 @@ def describe(args):
 
 def dump(args):
     """dump stack in AWS to local disk"""
-    global_args(args)
-
     stacks = args.stack
 
     # dump all stacks
@@ -382,7 +364,7 @@ def dump(args):
 
     # bail if no stacks to dump
     if not len(stacks):
-        logging.warning('this command needs a list of remote stacks, or the --all flag to dump all stacks')
+        logger.warning('this command needs a list of remote stacks, or the --all flag to dump all stacks')
         sys.exit(1)
 
     # action
@@ -393,12 +375,12 @@ def dump(args):
 
         # overwriting requires force
         if not args.force and path.exists(stack_dir):
-            logging.warning('stack %s already exists locally, use --force to overwrite' % stack)
+            logger.warning('stack %s already exists locally, use --force to overwrite' % stack)
             retval = 2
             continue
 
         try:
-            logging.info('Dumping stack %s' % stack)
+            logger.info('Dumping stack %s' % stack)
             save_template(stack, cfn.get_template(StackName=stack)['TemplateBody'])
             try:
                 params = cfn.describe_stacks(StackName=stack)['Stacks'][0]['Parameters']
@@ -406,19 +388,17 @@ def dump(args):
             except KeyError:
                 pass
         except Exception as err:
-            logging.error(str(err))
+            logger.error(str(err))
 
     sys.exit(retval)
 
 
 def events(args):
     """prints all events for a stack"""
-    global_args(args)
-
     stack = args.stack
 
     if stack not in remote_stacks().keys():
-        logging.error("no such stack: " + stack)
+        logger.error("no such stack: " + stack)
         sys.exit(1)
 
     if args.follow:
@@ -429,8 +409,6 @@ def events(args):
 
 def lists(args):
     """output a list of stacks"""
-    global_args(args)
-
     stacks = remote_stacks()
 
     for stack in [k for k in local_stacks() if k not in stacks.keys()]:
@@ -465,7 +443,7 @@ def reformat(args):
 
     # bail if no stacks to dump
     if not len(stacks):
-        logging.warning('this command needs a list if local stacks, or the --all flag to dump all stacks')
+        logger.warning('this command needs a list if local stacks, or the --all flag to dump all stacks')
         sys.exit(1)
 
     # action
@@ -475,16 +453,14 @@ def reformat(args):
 
 def update(args):
     """update or create a stack in AWS."""
-    global_args(args)
-
     stack = args.stack
 
     if stack not in local_stacks():
-        logging.error('no such stack: ' + stack)
+        logger.error('no such stack: ' + stack)
         return
 
     if stack not in remote_stacks().keys() and not args.create_missing:
-        logging.warning('stack ' + stack + ' does not exist in AWS, add --create_missing to create a new stack')
+        logger.warning('stack ' + stack + ' does not exist in AWS, add --create_missing to create a new stack')
         return
 
     # read template and parameters
@@ -497,7 +473,7 @@ def update(args):
 
     try:
         if stack in remote_stacks().keys():
-            logging.info('updating stack %s' % stack)
+            logger.info('updating stack %s' % stack)
             last_event = fetch_all_stack_events(stack)[-1]['Timestamp']
             stack_id = cfn.update_stack(
                 StackName=stack,
@@ -505,21 +481,21 @@ def update(args):
                 Parameters=params,
                 Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
             )['StackId']
-            logging.info('created stack with physical id %s' % stack_id)
+            logger.info('created stack with physical id %s' % stack_id)
         else:
-            logging.info('creating stack %s' % stack)
+            logger.info('creating stack %s' % stack)
             stack_id = cfn.create_stack(
                 StackName=stack,
                 TemplateBody=tpl_body,
                 Parameters=params,
                 Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
             )['StackId']
-            logging.info('created stack with physical id %s' % stack_id)
+            logger.info('created stack with physical id %s' % stack_id)
     except botocore.exceptions.ClientError as err:
-        logging.warning(str(err))
+        logger.warning(str(err))
         return
     except botocore.exceptions.ParamValidationError as err:
-        logging.warning(str(err))
+        logger.warning(str(err))
         return
 
     # synchronous mode
@@ -529,8 +505,6 @@ def update(args):
 
 def validate(args):
     """validate local stack(s)"""
-    global_args(args)
-
     stacks = args.stack
 
     # validate all stacks
@@ -543,7 +517,7 @@ def validate(args):
 
     # bail if no stack to validate
     if not len(stacks):
-        logging.warning('this command needs a list of local stacks, or the --all flag to validate all stacks')
+        logger.warning('this command needs a list of local stacks, or the --all flag to validate all stacks')
         sys.exit(1)
 
     # action
@@ -631,12 +605,24 @@ def main():
 
     args = parser.parse_args()
 
+    # set region globally
+    global region
+    region = args.region
+
+    # set log level
+    if args.verbose:
+        logger.setLevel(logging.INFO)
+        logging.basicConfig(level=logging.INFO)
+    elif args.debug:
+        logger.setLevel(logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG)
+
     try:
         args.func(args)
     # catch boto3 exceptions on a high level:
     except botocore.exceptions.NoRegionError as err:
-        logging.error(str(err))
+        logger.error(str(err))
         sys.exit(1)
     except botocore.exceptions.ClientError as err:
-        logging.error(str(err))
+        logger.error(str(err))
         sys.exit(1)
