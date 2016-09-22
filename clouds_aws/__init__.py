@@ -393,12 +393,12 @@ def dump(args):
 
         # overwriting requires force
         if not args.force and path.exists(stack_dir):
-            print('stack', stack, 'already exists locally, use --force to overwrite')
+            logging.warning('stack %s already exists locally, use --force to overwrite' % stack)
             retval = 2
             continue
 
         try:
-            print('Dumping stack', stack)
+            logging.info('Dumping stack %s' % stack)
             save_template(stack, cfn.get_template(StackName=stack)['TemplateBody'])
             try:
                 params = cfn.describe_stacks(StackName=stack)['Stacks'][0]['Parameters']
@@ -487,8 +487,6 @@ def update(args):
         logging.warning('stack ' + stack + ' does not exist in AWS, add --create_missing to create a new stack')
         return
 
-    print('updating stack', stack)
-
     # read template and parameters
     tpl_body = load_template(stack, True)
     params = load_parameters(stack)
@@ -499,7 +497,7 @@ def update(args):
 
     try:
         if stack in remote_stacks().keys():
-            # create
+            logging.info('updating stack %s' % stack)
             last_event = fetch_all_stack_events(stack)[-1]['Timestamp']
             stack_id = cfn.update_stack(
                 StackName=stack,
@@ -507,21 +505,21 @@ def update(args):
                 Parameters=params,
                 Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
             )['StackId']
-            print(stack_id)
+            logging.info('created stack with physical id %s' % stack_id)
         else:
-            # update
+            logging.info('creating stack %s' % stack)
             stack_id = cfn.create_stack(
                 StackName=stack,
                 TemplateBody=tpl_body,
                 Parameters=params,
                 Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
             )['StackId']
-            print(stack_id)
+            logging.info('created stack with physical id %s' % stack_id)
     except botocore.exceptions.ClientError as err:
-        logging.error(str(err))
+        logging.warning(str(err))
         return
     except botocore.exceptions.ParamValidationError as err:
-        logging.error(str(err))
+        logging.warning(str(err))
         return
 
     # synchronous mode
