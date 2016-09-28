@@ -4,9 +4,6 @@ from setuptools import setup, find_packages
 
 here = path.abspath(path.dirname(__file__))
 
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
-
 try:
     snapshot = 'dev%s' % environ['BUILD_NUMBER']
 except KeyError:
@@ -18,7 +15,7 @@ setup(
     version='0.2.3%s' % snapshot,
 
     description='A tool for easy handling of AWS Cloudformation stacks as code.',
-    long_description=long_description,
+    long_description='For detailed usage instructions see https://github.com/elias5000/clouds-aws/blob/master/README.md',
 
     url='https://github.com/elias5000/clouds-aws',
 
