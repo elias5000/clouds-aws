@@ -150,7 +150,12 @@ def load_template(stack, raw=False):
         if raw:
             return fp.read()
         else:
-            return json.load(fp)
+            try:
+                return json.load(fp)
+            except ValueError as exception:
+                print("Failed parsing template file %s %s" %
+                      (tpl_path, exception))
+                sys.exit(1)
 
 
 def save_template(stack, tpl_body):
