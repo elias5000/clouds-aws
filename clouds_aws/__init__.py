@@ -15,9 +15,21 @@ cfn_client = None
 remote_stack_cache = None
 region = None  # None = default to environment
 
+EMPTY_BODY = """
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Empty stack",
+  "Resources": {
+    "DummySQSQueue": {
+      "Properties": {},
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}
+"""
+
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.WARNING)
 logger = logging.getLogger('clouds-aws')
-
 
 # aws functions
 def get_cfn():
@@ -477,25 +489,26 @@ def update(args):
     last_event = None
 
     try:
-        if stack in remote_stacks().keys():
-            logger.info('updating stack %s' % stack)
-            last_event = fetch_all_stack_events(stack)[-1]['Timestamp']
-            stack_id = cfn.update_stack(
-                StackName=stack,
-                TemplateBody=tpl_body,
-                Parameters=params,
-                Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
-            )['StackId']
-            logger.info('created stack with physical id %s' % stack_id)
-        else:
-            logger.info('creating stack %s' % stack)
+        if stack not in remote_stacks().keys():
+            logger.info('creating an empty stack for %s' % stack)
             stack_id = cfn.create_stack(
                 StackName=stack,
-                TemplateBody=tpl_body,
-                Parameters=params,
+                TemplateBody=EMPTY_BODY,
+                Parameters=[],
                 Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
             )['StackId']
             logger.info('created stack with physical id %s' % stack_id)
+            last_event = fetch_all_stack_events(stack)[-1]['Timestamp']
+            wait(stack, show_events=args.events, last_event=last_event)
+        logger.info('updating stack %s' % stack)
+        last_event = fetch_all_stack_events(stack)[-1]['Timestamp']
+        stack_id = cfn.update_stack(
+            StackName=stack,
+            TemplateBody=tpl_body,
+            Parameters=params,
+            Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
+        )['StackId']
+        logger.info('created stack with physical id %s' % stack_id)
     except botocore.exceptions.ClientError as err:
         logger.warning(str(err))
         return
