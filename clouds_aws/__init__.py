@@ -57,8 +57,19 @@ def remote_stacks(refresh=False):
     remote_stack_cache = {}
 
     # remote stacks
-    for stack in cfn.describe_stacks()['Stacks']:
+    stacks = cfn.describe_stacks()
+    for stack in stacks['Stacks']:
         remote_stack_cache[stack['StackName']] = stack['StackStatus']
+
+    # paginate if necessary
+    while True:
+        try:
+            next_token = stacks['NextToken']
+            stacks = cfn.describe_stacks(NextToken=next_token)
+            for stack in stacks['Stacks']:
+                remote_stack_cache[stack['StackName']] = stack['StackStatus']
+        except KeyError:
+            break
 
     return remote_stack_cache.copy()
 
