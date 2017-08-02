@@ -635,6 +635,10 @@ def main():
 
     try:
         args.func(args)
+    # no subcommand specified (fix for python >=3.3)
+    except AttributeError:
+        parser.print_help()
+        sys.exit(1)
     # catch boto3 exceptions on a high level:
     except botocore.exceptions.NoRegionError as err:
         logger.error(str(err))

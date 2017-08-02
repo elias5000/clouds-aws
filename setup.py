@@ -12,7 +12,7 @@ except KeyError:
 setup(
     name='clouds-aws',
 
-    version='0.2.3-3%s' % snapshot,
+    version='0.2.3-4%s' % snapshot,
 
     description='A tool for easy handling of AWS Cloudformation stacks as code.',
     long_description='For detailed usage instructions see https://github.com/elias5000/clouds-aws/blob/master/README.md',
@@ -41,6 +41,9 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
 
         'Topic :: System :: Installation/Setup',
         'Topic :: Utilities'
