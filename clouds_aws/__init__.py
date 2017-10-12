@@ -40,7 +40,8 @@ def local_stacks():
 
     # local stacks must have at lest a template.json
     for item in listdir('stacks'):
-        if path.isdir(path.join('stacks', item)) and path.isfile(path.join('stacks', item, 'template.json')):
+        if path.isdir(path.join('stacks', item)) and path.isfile(
+                path.join('stacks', item, 'template.json')):
             stacks.append(item)
 
     return stacks
@@ -143,7 +144,8 @@ def wait(stack, show_events=False, last_event=None):
                 last_event = stack_events(stack, last_event=last_event)
 
             # exit condition
-            if stack_obj.stack_status[-8:] == 'COMPLETE' or stack_obj.stack_status == 'DELETE_FAILED':
+            if stack_obj.stack_status[
+               -8:] == 'COMPLETE' or stack_obj.stack_status == 'DELETE_FAILED':
                 break
 
         except botocore.exceptions.ClientError:
@@ -227,13 +229,18 @@ def save_parameters(stack, params):
 def normalize_tpl(tpl_body):
     """takes template body object and returns formatted JSON string."""
     jstr = json.dumps(tpl_body, indent=2, sort_keys=True)
-    jstr = re.sub(r'{\s*("Fn::GetAtt")\s*:\s*\[\s*("\S+")\s*,\s*("\S+")\s*\]\s*}', r'{ \1: [ \2, \3 ] }', jstr)
-    jstr = re.sub(r'{\s*("Fn::Select")\s*:\s*\[\s*("\d+")\s*,\s*({[^}]+})\s*]\s*}', r'{ \1: [ \2, \3 ] }', jstr)
+    jstr = re.sub(r'{\s*("Fn::GetAtt")\s*:\s*\[\s*("\S+")\s*,\s*("\S+")\s*\]\s*}',
+                  r'{ \1: [ \2, \3 ] }', jstr)
+    jstr = re.sub(r'{\s*("Fn::Select")\s*:\s*\[\s*("\d+")\s*,\s*({[^}]+})\s*]\s*}',
+                  r'{ \1: [ \2, \3 ] }', jstr)
     jstr = re.sub(r'{\s*("Fn::GetAZs")\s*:\s*("\S*")\s*}', r'{ \1: \2 }', jstr)
     jstr = re.sub(r'{\s*("Ref")\s*:\s*("\S+")\s*}', r'{ \1: \2 }', jstr)
-    jstr = re.sub(r'{\s*("Name"):\s*("\S+"),\s*("Value"):\s*("\S*")\s*}', r'{ \1: \2, \3: \4 }', jstr)
-    jstr = re.sub(r'{\s*("Key"):\s*("\S+"),\s*("Value"):\s*("\S*")\s*}', r'{ \1: \2, \3: \4 }', jstr)
-    jstr = re.sub(r'{\s*("Key"):\s*("\S+"),\s*("Value"):\s*({[^}]*})\s*}', r'{ \1: \2, \3: \4 }', jstr)
+    jstr = re.sub(r'{\s*("Name"):\s*("\S+"),\s*("Value"):\s*("\S*")\s*}',
+                  r'{ \1: \2, \3: \4 }', jstr)
+    jstr = re.sub(r'{\s*("Key"):\s*("\S+"),\s*("Value"):\s*("[\S ]*")\s*}',
+                  r'{ \1: \2, \3: \4 }', jstr)
+    jstr = re.sub(r'{\s*("Key"):\s*("\S+"),\s*("Value"):\s*({[^}]*})\s*}',
+                  r'{ \1: \2, \3: \4 }', jstr)
     jstr = re.sub(r'\[\n\r?\s*([^\n]*)\n\r?\s*\](,?)', r'[ \1 ]\2', jstr)
     jstr = re.sub(r'\s+$', r'', jstr, flags=re.MULTILINE)
     jstr = re.sub(r'([^\n]*)\n\s*("\\n",?)', r'\1\2', jstr, flags=re.MULTILINE)
@@ -268,8 +275,9 @@ def delete(args):
 
     # deleting stacks requires force
     if not args.force:
-        logger.warning('this command might impact running environments and it needs the --force flag,' +
-                       'hopefully you know what you are doing')
+        logger.warning(
+            'this command might impact running environments and it needs the --force flag,' +
+            'hopefully you know what you are doing')
         sys.exit(1)
 
     if stack not in remote_stacks():
@@ -330,7 +338,8 @@ def describe(args):
             stack_data['Resources'] = []
             for resource in resources:
                 stack_data['Resources'].append({resource['LogicalResourceId']: {
-                    'ResourceType': resource['ResourceType'], 'PhysicalResourceId': resource['PhysicalResourceId']
+                    'ResourceType': resource['ResourceType'],
+                    'PhysicalResourceId': resource['PhysicalResourceId']
                 }})
         print(normalize_tpl(stack_data))
 
@@ -341,7 +350,8 @@ def describe(args):
             for param in sorted(params, key=lambda k: k['ParameterKey']):
                 print("  %s:%s %s" % (
                     param['ParameterKey'],
-                    ''.ljust(max([len(p['ParameterKey']) for p in params]) - len(param['ParameterKey'])),
+                    ''.ljust(
+                        max([len(p['ParameterKey']) for p in params]) - len(param['ParameterKey'])),
                     param['ParameterValue']
                 ))
         if len(outputs):
@@ -349,7 +359,8 @@ def describe(args):
             for output in sorted(outputs, key=lambda k: k['OutputKey']):
                 print("  %s:%s %s" % (
                     output['OutputKey'],
-                    ''.ljust(max([len(o['OutputKey']) for o in outputs]) - len(output['OutputKey'])),
+                    ''.ljust(
+                        max([len(o['OutputKey']) for o in outputs]) - len(output['OutputKey'])),
                     output['OutputValue']
                 ))
         if len(resources):
@@ -358,10 +369,12 @@ def describe(args):
                 print("  %s:%s %s %s(%s)" % (
                     resource['LogicalResourceId'],
                     ''.ljust(
-                        max([len(res['LogicalResourceId']) for res in resources]) - len(resource['LogicalResourceId'])
+                        max([len(res['LogicalResourceId']) for res in resources]) - len(
+                            resource['LogicalResourceId'])
                     ),
                     resource['ResourceType'],
-                    ''.ljust(max([len(res['ResourceType']) for res in resources]) - len(resource['ResourceType'])),
+                    ''.ljust(max([len(res['ResourceType']) for res in resources]) - len(
+                        resource['ResourceType'])),
                     resource['PhysicalResourceId']
                 ))
 
@@ -380,7 +393,8 @@ def dump(args):
 
     # bail if no stacks to dump
     if not len(stacks):
-        logger.warning('this command needs a list of remote stacks, or the --all flag to dump all stacks')
+        logger.warning(
+            'this command needs a list of remote stacks, or the --all flag to dump all stacks')
         sys.exit(1)
 
     # action
@@ -459,7 +473,8 @@ def reformat(args):
 
     # bail if no stacks to dump
     if not len(stacks):
-        logger.warning('this command needs a list if local stacks, or the --all flag to dump all stacks')
+        logger.warning(
+            'this command needs a list if local stacks, or the --all flag to dump all stacks')
         sys.exit(1)
 
     # action
@@ -476,7 +491,8 @@ def update(args):
         return
 
     if stack not in remote_stacks().keys() and not args.create_missing:
-        logger.warning('stack ' + stack + ' does not exist in AWS, add --create_missing to create a new stack')
+        logger.warning(
+            'stack ' + stack + ' does not exist in AWS, add --create_missing to create a new stack')
         return
 
     # read template and parameters
@@ -533,7 +549,8 @@ def validate(args):
 
     # bail if no stack to validate
     if not len(stacks):
-        logger.warning('this command needs a list of local stacks, or the --all flag to validate all stacks')
+        logger.warning(
+            'this command needs a list of local stacks, or the --all flag to validate all stacks')
         sys.exit(1)
 
     # action
@@ -557,8 +574,10 @@ def main():
     subparsers = parser.add_subparsers()
 
     parser.add_argument('-d', '--debug', action='store_true', help='loglevel: debug')
-    parser.add_argument('-f', '--force', action='store_true', help='force action (use as global flag deprecated)')
-    parser.add_argument('-r', '--region', help='specify region (default: use environment)', nargs='?', default=None)
+    parser.add_argument('-f', '--force', action='store_true',
+                        help='force action (use as global flag deprecated)')
+    parser.add_argument('-r', '--region', help='specify region (default: use environment)',
+                        nargs='?', default=None)
     parser.add_argument('-v', '--verbose', action='store_true', help='loglevel: info')
 
     clone_parser = subparsers.add_parser('clone', help='clone a stack in the current directory')
@@ -568,7 +587,8 @@ def main():
 
     delete_parser = subparsers.add_parser('delete', help='delete a stack in AWS')
     delete_parser.add_argument('-e', '--events', action='store_true',
-                               help='display events while waiting for the deletion to complete (implies --wait)')
+                               help='display events while waiting for the deletion to complete ('
+                                    'implies --wait)')
     delete_parser.add_argument('-f', '--force', action='store_true', help='force deletion')
     delete_parser.add_argument('-w', '--wait', action='store_true',
                                help='wait for deletion to finish (synchronous mode)')
@@ -576,14 +596,16 @@ def main():
     delete_parser.set_defaults(func=delete)
 
     describe_parser = subparsers.add_parser('describe',
-                                            help='output parameters, outputs, and resources of a stack in AWS')
+                                            help='output parameters, outputs, and resources of a '
+                                                 'stack in AWS')
     describe_parser.add_argument('-j', '--json', action='store_true', help='output as JSON')
     describe_parser.add_argument('stack', help='stack to describe')
     describe_parser.set_defaults(func=describe)
 
     dump_parser = subparsers.add_parser('dump', help='dump a stack in AWS to current directory')
     dump_parser.add_argument('-a', '--all', action='store_true', help='dump all stacks')
-    dump_parser.add_argument('-f', '--force', action='store_true', help='overwrite existing local stack')
+    dump_parser.add_argument('-f', '--force', action='store_true',
+                             help='overwrite existing local stack')
     dump_parser.add_argument('stack', help='stack to dump', nargs='*')
     dump_parser.set_defaults(func=dump)
 
@@ -593,7 +615,8 @@ def main():
     events_parser.add_argument('stack', help='stack name')
     events_parser.set_defaults(func=events)
 
-    format_parser = subparsers.add_parser('format', help='normalize stack template(s) (for better diffs)')
+    format_parser = subparsers.add_parser('format',
+                                          help='normalize stack template(s) (for better diffs)')
     format_parser.add_argument('-a', '--all', action='store_true', help='reformat all stacks')
     format_parser.add_argument('-p', '--pipe', action='store_true',
                                help='pipe mode - read template from stdin and output to stdout')
@@ -609,8 +632,10 @@ def main():
     update_parser.add_argument('-c', '--create_missing', action='store_true',
                                help='create stack in AWS if it does not exist')
     update_parser.add_argument('-e', '--events', action='store_true',
-                               help='display events while waiting for the update to complete (implies --wait)')
-    update_parser.add_argument('-w', '--wait', action='store_true', help='wait for update to finish (synchronous mode)')
+                               help='display events while waiting for the update to complete ('
+                                    'implies --wait)')
+    update_parser.add_argument('-w', '--wait', action='store_true',
+                               help='wait for update to finish (synchronous mode)')
     update_parser.add_argument('stack', help='stack to update')
     update_parser.set_defaults(func=update)
 
