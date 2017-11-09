@@ -98,7 +98,7 @@ def normalize_tpl(tpl_body):
     jstr = re.sub(r'{\s*("Key"):\s*("\S+"),\s*("Value"):\s*({[^}]*})\s*}',
                   r'{ \1: \2, \3: \4 }', jstr)
     jstr = re.sub(r'{\s*("Field"):\s*("\S+"),\s*("Values"):\s*\[\s*(\S+)\s*\]\s*}',
-                  r'{ \1: \2, \3: \4 }', jstr)
+                  r'{ \1: \2, \3: [ \4 ] }', jstr)
 
     jstr = re.sub(r'\[\n\r?\s*([^\n]*)\n\r?\s*\](,?)', r'[ \1 ]\2', jstr)
     jstr = re.sub(r'\s+$', r'', jstr, flags=re.MULTILINE)
