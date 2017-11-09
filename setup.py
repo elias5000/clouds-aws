@@ -1,21 +1,21 @@
-from codecs import open
-from os import path, environ
+""" PIP module declaration for clouds-aws """
+from os import environ
+
 from setuptools import setup, find_packages
 
-here = path.abspath(path.dirname(__file__))
-
 try:
-    snapshot = 'dev%s' % environ['BUILD_NUMBER']
+    SNAPSHOT = 'dev%s' % environ['BUILD_NUMBER']
 except KeyError:
-    snapshot = ''
+    SNAPSHOT = ''
 
 setup(
     name='clouds-aws',
 
-    version='0.2.3-4%s' % snapshot,
+    version='0.2.3-4%s' % SNAPSHOT,
 
     description='A tool for easy handling of AWS Cloudformation stacks as code.',
-    long_description='For detailed usage instructions see https://github.com/elias5000/clouds-aws/blob/master/README.md',
+    long_description='For detailed usage instructions see '
+                     'https://github.com/elias5000/clouds-aws/blob/master/README.md',
 
     url='https://github.com/elias5000/clouds-aws',
 

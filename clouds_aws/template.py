@@ -1,3 +1,5 @@
+""" Function for local template handling """
+
 import json
 import re
 import sys
@@ -9,12 +11,12 @@ import yaml
 def load_template(stack, raw=False):
     """load template json from disk and return as dictionary"""
     tpl_path = path.join('stacks', stack, 'template.json')
-    with open(tpl_path, encoding='utf-8') as fp:
+    with open(tpl_path, encoding='utf-8') as file:
         if raw:
-            return fp.read()
+            return file.read()
         else:
             try:
-                return json.load(fp)
+                return json.load(file)
             except ValueError as exception:
                 print("Failed parsing template file %s %s" %
                       (tpl_path, exception))
@@ -32,8 +34,8 @@ def save_template(stack, tpl_body):
     if not path.exists(stack_dir):
         mkdir(stack_dir)
 
-    with open(tpl_path, mode='w', encoding='utf-8') as fp:
-        fp.write(normalize_tpl(tpl_body))
+    with open(tpl_path, mode='w', encoding='utf-8') as file:
+        file.write(normalize_tpl(tpl_body))
 
 
 def load_parameters(stack):
@@ -44,8 +46,8 @@ def load_parameters(stack):
     if not path.exists(param_path):
         return params
 
-    with open(param_path, encoding='utf-8') as fp:
-        params_raw = yaml.load(fp.read())
+    with open(param_path, encoding='utf-8') as file:
+        params_raw = yaml.load(file.read())
 
         # build parameter dict
         for param in params_raw.keys():
@@ -72,8 +74,8 @@ def save_parameters(stack, params):
     if not path.exists(stack_dir):
         mkdir(stack_dir)
 
-    with open(param_path, mode='w', encoding='utf-8') as fp:
-        fp.write(yaml.dump(params_dict, default_flow_style=False, explicit_start=True))
+    with open(param_path, mode='w', encoding='utf-8') as file:
+        file.write(yaml.dump(params_dict, default_flow_style=False, explicit_start=True))
 
 
 def normalize_tpl(tpl_body):

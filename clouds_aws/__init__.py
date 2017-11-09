@@ -1,3 +1,5 @@
+""" Clouds-aws main module """
+
 import argparse
 import json
 import logging
@@ -16,23 +18,23 @@ from .template import (
     normalize_tpl
 )
 
-cfn_client = None
-remote_stack_cache = None
-region = None  # None = default to environment
+CFN_CLIENT = None
+REMOTE_STACK_CACHE = None
+REGION = None  # None = default to environment
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.WARNING)
-logger = logging.getLogger('clouds-aws')
+LOG = logging.getLogger('clouds-aws')
 
 
 # aws functions
 def get_cfn():
     """cloudformation client singleton"""
-    global cfn_client
-    global region
+    global CFN_CLIENT
+    global REGION
 
-    if not cfn_client:
-        cfn_client = boto3.client('cloudformation', region)
-    return cfn_client
+    if not CFN_CLIENT:
+        CFN_CLIENT = boto3.client('cloudformation', REGION)
+    return CFN_CLIENT
 
 
 def local_stacks():
@@ -54,18 +56,18 @@ def local_stacks():
 
 def remote_stacks(refresh=False):
     """get remote stacks and return as dictionary."""
-    global remote_stack_cache
+    global REMOTE_STACK_CACHE
 
-    if remote_stack_cache is not None and refresh is False:
-        return remote_stack_cache.copy()
+    if REMOTE_STACK_CACHE is not None and refresh is False:
+        return REMOTE_STACK_CACHE.copy()
 
     cfn = get_cfn()
-    remote_stack_cache = {}
+    REMOTE_STACK_CACHE = {}
 
     # remote stacks
     stacks = cfn.describe_stacks()
     for stack in stacks['Stacks']:
-        remote_stack_cache[stack['StackName']] = stack['StackStatus']
+        REMOTE_STACK_CACHE[stack['StackName']] = stack['StackStatus']
 
     # paginate if necessary
     while True:
@@ -73,11 +75,11 @@ def remote_stacks(refresh=False):
             next_token = stacks['NextToken']
             stacks = cfn.describe_stacks(NextToken=next_token)
             for stack in stacks['Stacks']:
-                remote_stack_cache[stack['StackName']] = stack['StackStatus']
+                REMOTE_STACK_CACHE[stack['StackName']] = stack['StackStatus']
         except KeyError:
             break
 
-    return remote_stack_cache.copy()
+    return REMOTE_STACK_CACHE.copy()
 
 
 def fetch_all_stack_events(stack):
@@ -137,9 +139,10 @@ def stack_events(stack, last_event=None):
 
 
 def wait(stack, show_events=False, last_event=None):
-    global region
+    """wait for stack action to complete"""
+    global REGION
 
-    stack_obj = boto3.resource('cloudformation', region_name=region).Stack(stack)
+    stack_obj = boto3.resource('cloudformation', region_name=REGION).Stack(stack)
     while True:
         try:
             stack_obj.reload()
@@ -149,8 +152,9 @@ def wait(stack, show_events=False, last_event=None):
                 last_event = stack_events(stack, last_event=last_event)
 
             # exit condition
-            if stack_obj.stack_status[
-               -8:] == 'COMPLETE' or stack_obj.stack_status == 'DELETE_FAILED':
+            if stack_obj.stack_status[-8:] == 'COMPLETE':
+                break
+            if stack_obj.stack_status == 'DELETE_FAILED':
                 break
 
         except botocore.exceptions.ClientError:
@@ -169,12 +173,12 @@ def clone(args):
 
     # require stack to exist locally
     if src not in local_stacks():
-        logger.error("no such local stack: " + src)
+        LOG.error("no such local stack: " + src)
         sys.exit(1)
 
     # overwrite of existing local stack requires force
     if args.force and path.exists(path.join('stacks', dst)):
-        logger.warning('stack ' + dst + ' already exists, use --force to overwrite')
+        LOG.warning('stack ' + dst + ' already exists, use --force to overwrite')
         sys.exit(1)
 
     save_template(dst, load_template(src))
@@ -188,13 +192,13 @@ def delete(args):
 
     # deleting stacks requires force
     if not args.force:
-        logger.warning(
+        LOG.warning(
             'this command might impact running environments and it needs the --force flag,' +
             'hopefully you know what you are doing')
         sys.exit(1)
 
     if stack not in remote_stacks():
-        logger.error("no such stack: " + stack)
+        LOG.error("no such stack: " + stack)
         sys.exit(1)
 
     # last existing event - we only want to see newer events in case of --events
@@ -214,7 +218,7 @@ def describe(args):
     stack = args.stack
 
     if stack not in remote_stacks():
-        logger.error('no such stack: ' + stack)
+        LOG.error('no such stack: ' + stack)
         sys.exit(1)
 
     # query API
@@ -239,15 +243,15 @@ def describe(args):
     # output json
     if args.json:
         stack_data = {}
-        if len(params):
+        if params:
             stack_data['Parameters'] = []
             for param in params:
                 stack_data['Parameters'].append({param['ParameterKey']: param['ParameterValue']})
-        if len(outputs):
+        if outputs:
             stack_data['Outputs'] = []
             for output in outputs:
                 stack_data['Outputs'].append({output['OutputKey']: output['OutputValue']})
-        if len(resources):
+        if resources:
             stack_data['Resources'] = []
             for resource in resources:
                 stack_data['Resources'].append({resource['LogicalResourceId']: {
@@ -258,7 +262,7 @@ def describe(args):
 
     # output list
     else:
-        if len(params):
+        if params:
             print('Parameters:')
             for param in sorted(params, key=lambda k: k['ParameterKey']):
                 print("  %s:%s %s" % (
@@ -267,7 +271,7 @@ def describe(args):
                         max([len(p['ParameterKey']) for p in params]) - len(param['ParameterKey'])),
                     param['ParameterValue']
                 ))
-        if len(outputs):
+        if outputs:
             print('Outputs:')
             for output in sorted(outputs, key=lambda k: k['OutputKey']):
                 print("  %s:%s %s" % (
@@ -276,7 +280,7 @@ def describe(args):
                         max([len(o['OutputKey']) for o in outputs]) - len(output['OutputKey'])),
                     output['OutputValue']
                 ))
-        if len(resources):
+        if resources:
             print('Resources:')
             for resource in resources:
                 print("  %s:%s %s %s(%s)" % (
@@ -301,12 +305,12 @@ def dump(args):
         stacks = remote_stacks().keys()
 
     # filter for existing stacks
-    elif len(stacks):
+    elif stacks:
         stacks = [stack for stack in stacks if stack in remote_stacks().keys()]
 
     # bail if no stacks to dump
-    if not len(stacks):
-        logger.warning(
+    if not stacks:
+        LOG.warning(
             'this command needs a list of remote stacks, or the --all flag to dump all stacks')
         sys.exit(1)
 
@@ -318,20 +322,17 @@ def dump(args):
 
         # overwriting requires force
         if not args.force and path.exists(stack_dir):
-            logger.warning('stack %s already exists locally, use --force to overwrite' % stack)
+            LOG.warning('stack %s already exists locally, use --force to overwrite', stack)
             retval = 2
             continue
 
+        LOG.info('Dumping stack %s', stack)
+        save_template(stack, cfn.get_template(StackName=stack)['TemplateBody'])
         try:
-            logger.info('Dumping stack %s' % stack)
-            save_template(stack, cfn.get_template(StackName=stack)['TemplateBody'])
-            try:
-                params = cfn.describe_stacks(StackName=stack)['Stacks'][0]['Parameters']
-                save_parameters(stack, params)
-            except KeyError:
-                pass
-        except Exception as err:
-            logger.error(str(err))
+            params = cfn.describe_stacks(StackName=stack)['Stacks'][0]['Parameters']
+            save_parameters(stack, params)
+        except KeyError:
+            pass
 
     sys.exit(retval)
 
@@ -341,7 +342,7 @@ def events(args):
     stack = args.stack
 
     if stack not in remote_stacks().keys():
-        logger.error("no such stack: " + stack)
+        LOG.error("no such stack: " + stack)
         sys.exit(1)
 
     if args.follow:
@@ -381,12 +382,12 @@ def reformat(args):
         stacks = local_stacks()
 
     # filter for existing stacks
-    elif len(stacks):
+    elif stacks:
         stacks = [stack for stack in stacks if stack in local_stacks()]
 
     # bail if no stacks to dump
-    if not len(stacks):
-        logger.warning(
+    if not stacks:
+        LOG.warning(
             'this command needs a list if local stacks, or the --all flag to dump all stacks')
         sys.exit(1)
 
@@ -400,11 +401,11 @@ def update(args):
     stack = args.stack
 
     if stack not in local_stacks():
-        logger.error('no such stack: ' + stack)
+        LOG.error('no such stack: ' + stack)
         return
 
     if stack not in remote_stacks().keys() and not args.create_missing:
-        logger.warning(
+        LOG.warning(
             'stack ' + stack + ' does not exist in AWS, add --create_missing to create a new stack')
         return
 
@@ -418,7 +419,7 @@ def update(args):
 
     try:
         if stack in remote_stacks().keys():
-            logger.info('updating stack %s' % stack)
+            LOG.info('updating stack %s', stack)
             last_event = fetch_all_stack_events(stack)[-1]['Timestamp']
             stack_id = cfn.update_stack(
                 StackName=stack,
@@ -426,21 +427,21 @@ def update(args):
                 Parameters=params,
                 Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
             )['StackId']
-            logger.info('created stack with physical id %s' % stack_id)
+            LOG.info('created stack with physical id %s', stack_id)
         else:
-            logger.info('creating stack %s' % stack)
+            LOG.info('creating stack %s', stack)
             stack_id = cfn.create_stack(
                 StackName=stack,
                 TemplateBody=tpl_body,
                 Parameters=params,
                 Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
             )['StackId']
-            logger.info('created stack with physical id %s' % stack_id)
+            LOG.info('created stack with physical id %s', stack_id)
     except botocore.exceptions.ClientError as err:
-        logger.warning(str(err))
+        LOG.warning(str(err))
         return
     except botocore.exceptions.ParamValidationError as err:
-        logger.warning(str(err))
+        LOG.warning(str(err))
         return
 
     # synchronous mode
@@ -457,12 +458,12 @@ def validate(args):
         stacks = local_stacks()
 
     # filter for existing stacks
-    elif len(stacks):
+    elif stacks:
         stacks = [stack for stack in stacks if stack in local_stacks()]
 
     # bail if no stack to validate
-    if not len(stacks):
-        logger.warning(
+    if not stacks:
+        LOG.warning(
             'this command needs a list of local stacks, or the --all flag to validate all stacks')
         sys.exit(1)
 
@@ -483,6 +484,7 @@ def validate(args):
 
 
 def main():
+    """main entrypoint"""
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
@@ -560,15 +562,15 @@ def main():
     args = parser.parse_args()
 
     # set region globally
-    global region
-    region = args.region
+    global REGION
+    REGION = args.region
 
     # set log level
     if args.verbose:
-        logger.setLevel(logging.INFO)
+        LOG.setLevel(logging.INFO)
         logging.basicConfig(level=logging.INFO)
     elif args.debug:
-        logger.setLevel(logging.DEBUG)
+        LOG.setLevel(logging.DEBUG)
         logging.basicConfig(level=logging.DEBUG)
 
     try:
@@ -579,8 +581,8 @@ def main():
         sys.exit(1)
     # catch boto3 exceptions on a high level:
     except botocore.exceptions.NoRegionError as err:
-        logger.error(str(err))
+        LOG.error(str(err))
         sys.exit(1)
     except botocore.exceptions.ClientError as err:
-        logger.error(str(err))
+        LOG.error(str(err))
         sys.exit(1)
