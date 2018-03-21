@@ -4,7 +4,7 @@ from os import path, unlink
 
 import yaml
 
-from .helpers import dump_yaml
+from ..helpers import dump_yaml
 
 LOG = logging.getLogger(__name__)
 
