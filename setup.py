@@ -11,7 +11,7 @@ except KeyError:
 setup(
     name='clouds-aws',
 
-    version='0.2.3-4%s' % SNAPSHOT,
+    version='0.3.0-1%s' % SNAPSHOT,
 
     description='A tool for easy handling of AWS Cloudformation stacks as code.',
     long_description='For detailed usage instructions see '
@@ -51,6 +51,7 @@ setup(
 
     keywords='aws cloudformation devops',
 
+    package_dir={'': 'src'},
     packages=find_packages(),
     entry_points={
         'console_scripts': [
