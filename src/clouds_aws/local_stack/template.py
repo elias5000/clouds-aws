@@ -1,13 +1,18 @@
 """ Template class """
 
 import json
-import yaml
+import logging
 from os import path
+
+import yaml
 
 from .helpers import dump_json, dump_yaml
 
+LOG = logging.getLogger(__name__)
+
 TYPE_JSON = 0
 TYPE_YAML = 1
+TYPE_DEFAULT = TYPE_YAML
 
 
 class TemplateError(Exception):
@@ -18,15 +23,27 @@ class TemplateError(Exception):
 class Template(object):
     """ CloudFormation template"""
 
-    def __init__(self, stack_path, template_type):
+    def __init__(self, stack_path):
         """
         Initialize empty CloudFormation template of specific type
         :param stack_path: stack directory path
         :param template_type:
         """
+        LOG.debug("Initializing new template in path %s", stack_path)
         self.path = stack_path
-        self.type = template_type
-        self.template = ""
+
+        loaded = False
+        for tpl_type in (TYPE_YAML, TYPE_JSON):
+            self.type = tpl_type
+            LOG.debug("Testing file %s", self._filename())
+            if path.isfile(self._filename()):
+                self.load()
+                loaded = True
+                break
+
+        if not loaded:
+            self.type = TYPE_DEFAULT
+            self.template = {}
 
     def load(self):
         """
@@ -42,15 +59,11 @@ class Template(object):
         else:
             raise TemplateError("Invalid type value")
 
-    def save(self, force=False):
+    def save(self):
         """
         Save template to file
-        :param force: overwrite existing
         :return:
         """
-        if path.exists(self._filename()) and not force:
-            raise TemplateError("File exists. Apply force to overwrite.")
-
         if self.type == TYPE_JSON:
             self._save_json()
 
@@ -83,6 +96,7 @@ class Template(object):
         Load template from JSON file
         :return:
         """
+        LOG.debug("Loading template from file %s", self._filename())
         with open(self._filename()) as tpl_fp:
             self.template = json.load(tpl_fp)
 
@@ -91,6 +105,7 @@ class Template(object):
         Save template to JSON file
         :return:
         """
+        LOG.debug("Saving template to file %s", self._filename())
         with open(self._filename(), "w") as tpl_fp:
             tpl_fp.write(dump_json(self.template))
 
@@ -99,6 +114,7 @@ class Template(object):
         Load template from YAML file
         :return:
         """
+        LOG.debug("Loading template from file %s", self._filename())
         with open(self._filename()) as tpl_fp:
             self.template = yaml.load(tpl_fp)
 
@@ -107,5 +123,6 @@ class Template(object):
         Save template to YAML file
         :return:
         """
+        LOG.debug("Saving template to file %s", self._filename())
         with open(self._filename(), "w") as tpl_fp:
             tpl_fp.write(dump_yaml(self.template))
