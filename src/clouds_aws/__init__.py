@@ -10,14 +10,6 @@ from time import sleep
 import boto3
 import botocore.exceptions
 
-from .template import (
-    load_parameters,
-    load_template,
-    save_parameters,
-    save_template,
-    normalize_tpl
-)
-
 CFN_CLIENT = None
 REMOTE_STACK_CACHE = None
 REGION = None  # None = default to environment

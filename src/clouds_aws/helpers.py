@@ -45,4 +45,4 @@ def dump_yaml(template):
     :param template:
     :return:
     """
-    return yaml.dump(template, default_float_style=False, explicit_start=True)
+    return yaml.dump(template, default_flow_style=False, explicit_start=True)

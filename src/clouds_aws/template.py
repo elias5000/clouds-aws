@@ -1,6 +1,7 @@
 """ Template class """
 
 import json
+import yaml
 from os import path
 
 from .helpers import dump_json, dump_yaml
@@ -65,10 +66,10 @@ class Template(object):
         :param with_path: include path
         :return:
         """
-        if self.type == TYPE_YAML:
-            extension = "yaml"
-        elif self.type == TYPE_JSON:
+        if self.type == TYPE_JSON:
             extension = "json"
+        elif self.type == TYPE_YAML:
+            extension = "yaml"
         else:
             raise TemplateError("Invalid type value")
 
@@ -99,7 +100,7 @@ class Template(object):
         :return:
         """
         with open(self._filename()) as tpl_fp:
-            self.template = json.load(tpl_fp)
+            self.template = yaml.load(tpl_fp)
 
     def _save_yaml(self):
         """
