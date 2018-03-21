@@ -1,108 +1,110 @@
-""" Function for local template handling """
+""" Template class """
 
 import json
-import re
-import sys
-from os import path, mkdir
+from os import path
 
-import yaml
+from .helpers import dump_json, dump_yaml
+
+TYPE_JSON = 0
+TYPE_YAML = 1
 
 
-def load_template(stack, raw=False):
-    """load template json from disk and return as dictionary"""
-    tpl_path = path.join('stacks', stack, 'template.json')
-    with open(tpl_path, encoding='utf-8') as file:
-        if raw:
-            return file.read()
+class TemplateError(Exception):
+    """ Custom Errors for Template class """
+    pass
+
+
+class Template(object):
+    """ CloudFormation template"""
+
+    def __init__(self, stack_path, template_type):
+        """
+        Initialize empty CloudFormation template of specific type
+        :param stack_path: stack directory path
+        :param template_type:
+        """
+        self.path = stack_path
+        self.type = template_type
+        self.template = ""
+
+    def load(self):
+        """
+        Load template from file
+        :return:
+        """
+        if self.type == TYPE_JSON:
+            self._load_json()
+
+        elif self.type == TYPE_YAML:
+            self._load_yaml()
+
         else:
-            try:
-                return json.load(file)
-            except ValueError as exception:
-                print("Failed parsing template file %s %s" %
-                      (tpl_path, exception))
-                sys.exit(1)
+            raise TemplateError("Invalid type value")
 
+    def save(self, force=False):
+        """
+        Save template to file
+        :param force: overwrite existing
+        :return:
+        """
+        if path.exists(self._filename()) and not force:
+            raise TemplateError("File exists. Apply force to overwrite.")
 
-def save_template(stack, tpl_body):
-    """saves template body to disk"""
-    stack_dir = path.join('stacks', stack)
-    tpl_path = path.join(stack_dir, 'template.json')
+        if self.type == TYPE_JSON:
+            self._save_json()
 
-    # ensure paths are present
-    if not path.exists('stacks'):
-        mkdir('stacks')
-    if not path.exists(stack_dir):
-        mkdir(stack_dir)
+        elif self.type == TYPE_YAML:
+            self._save_yaml()
 
-    with open(tpl_path, mode='w', encoding='utf-8') as file:
-        file.write(normalize_tpl(tpl_body))
+        else:
+            raise TemplateError("Invalid type value")
 
+    def _filename(self, with_path=True):
+        """
+        Return file name (with path)
+        :param with_path: include path
+        :return:
+        """
+        if self.type == TYPE_YAML:
+            extension = "yaml"
+        elif self.type == TYPE_JSON:
+            extension = "json"
+        else:
+            raise TemplateError("Invalid type value")
 
-def load_parameters(stack):
-    """load parameters from yaml file and return as dictionary"""
-    params = []
-    param_path = path.join('stacks', stack, 'parameters.yaml')
+        if with_path:
+            return path.join(self.path, "template.%s" % extension)
 
-    if not path.exists(param_path):
-        return params
+        return "template.%s" % extension
 
-    with open(param_path, encoding='utf-8') as file:
-        params_raw = yaml.load(file.read())
+    def _load_json(self):
+        """
+        Load template from JSON file
+        :return:
+        """
+        with open(self._filename()) as tpl_fp:
+            self.template = json.load(tpl_fp)
 
-        # build parameter dict
-        for param in params_raw.keys():
-            params.append({
-                'ParameterKey': param,
-                'ParameterValue': params_raw[param]
-            })
-    return params
+    def _save_json(self):
+        """
+        Save template to JSON file
+        :return:
+        """
+        with open(self._filename(), "w") as tpl_fp:
+            tpl_fp.write(dump_json(self.template))
 
+    def _load_yaml(self):
+        """
+        Load template from YAML file
+        :return:
+        """
+        with open(self._filename()) as tpl_fp:
+            self.template = json.load(tpl_fp)
 
-def save_parameters(stack, params):
-    """saves parameters to disk"""
-    # decode parameter dict
-    params_dict = {}
-    for param in params:
-        params_dict[param['ParameterKey']] = param['ParameterValue']
-
-    stack_dir = path.join('stacks', stack)
-    param_path = path.join(stack_dir, 'parameters.yaml')
-
-    # ensure paths are present
-    if not path.exists('stacks'):
-        mkdir('stacks')
-    if not path.exists(stack_dir):
-        mkdir(stack_dir)
-
-    with open(param_path, mode='w', encoding='utf-8') as file:
-        file.write(yaml.dump(params_dict, default_flow_style=False, explicit_start=True))
-
-
-def normalize_tpl(tpl_body):
-    """takes template body object and returns formatted JSON string."""
-    jstr = json.dumps(tpl_body, indent=2, sort_keys=True)
-
-    # Common function
-    jstr = re.sub(r'{\s*("Fn::GetAtt")\s*:\s*\[\s*("\S+")\s*,\s*("\S+")\s*\]\s*}',
-                  r'{ \1: [ \2, \3 ] }', jstr)
-    jstr = re.sub(r'{\s*("Fn::Select")\s*:\s*\[\s*("\d+")\s*,\s*({[^}]+})\s*]\s*}',
-                  r'{ \1: [ \2, \3 ] }', jstr)
-    jstr = re.sub(r'{\s*("Fn::GetAZs")\s*:\s*("\S*")\s*}', r'{ \1: \2 }', jstr)
-
-    # References
-    jstr = re.sub(r'{\s*("Ref")\s*:\s*("\S+")\s*}', r'{ \1: \2 }', jstr)
-
-    # Key/Value pairs
-    jstr = re.sub(r'{\s*("Name"):\s*("\S+"),\s*("Value"):\s*("\S*")\s*}',
-                  r'{ \1: \2, \3: \4 }', jstr)
-    jstr = re.sub(r'{\s*("Key"):\s*("\S+"),\s*("Value"):\s*("[\S ]*")\s*}',
-                  r'{ \1: \2, \3: \4 }', jstr)
-    jstr = re.sub(r'{\s*("Key"):\s*("\S+"),\s*("Value"):\s*({[^}]*})\s*}',
-                  r'{ \1: \2, \3: \4 }', jstr)
-    jstr = re.sub(r'{\s*("Field"):\s*("\S+"),\s*("Values"):\s*\[\s*(\S+)\s*\]\s*}',
-                  r'{ \1: \2, \3: [ \4 ] }', jstr)
-
-    jstr = re.sub(r'\[\n\r?\s*([^\n]*)\n\r?\s*\](,?)', r'[ \1 ]\2', jstr)
-    jstr = re.sub(r'\s+$', r'', jstr, flags=re.MULTILINE)
-    jstr = re.sub(r'([^\n]*)\n\s*("\\n",?)', r'\1\2', jstr, flags=re.MULTILINE)
-    return jstr
+    def _save_yaml(self):
+        """
+        Save template to YAML file
+        :return:
+        """
+        with open(self._filename(), "w") as tpl_fp:
+            tpl_fp.write(dump_yaml(self.template))
