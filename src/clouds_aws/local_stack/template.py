@@ -6,7 +6,7 @@ from os import path
 
 import yaml
 
-from ..helpers import dump_json, dump_yaml
+from clouds_aws.helpers import dump_json, dump_yaml
 
 LOG = logging.getLogger(__name__)
 

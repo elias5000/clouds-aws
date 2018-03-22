@@ -59,5 +59,5 @@ setup(
         ]
     },
 
-    install_requires=['boto3', 'PyYAML']
+    install_requires=['boto3', 'PyYAML', 'tabulate']
 )

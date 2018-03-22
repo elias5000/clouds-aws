@@ -1,7 +1,7 @@
 """ AWS API client class """
 
-import json
 import logging
+import json
 
 import boto3
 
@@ -72,22 +72,21 @@ class CloudFormation(object):
 
         # output json
         stack_data = {
-            'Parameters': [],
-            'Outputs': [],
-            'Resources': []
+            'Parameters': {},
+            'Outputs': {},
+            'Resources': {}
         }
         if params:
             for param in params:
-                stack_data['Parameters'].append(
-                    {param['ParameterKey']: param['ParameterValue']})
+                stack_data['Parameters'].update({param['ParameterKey']: param['ParameterValue']})
 
         if outputs:
             for output in outputs:
-                stack_data['Outputs'].append({output['OutputKey']: output['OutputValue']})
+                stack_data['Outputs'].update({output['OutputKey']: output['OutputValue']})
 
         if resources:
             for resource in resources:
-                stack_data['Resources'].append({resource['LogicalResourceId']: {
+                stack_data['Resources'].update({resource['LogicalResourceId']: {
                     'ResourceType': resource['ResourceType'],
                     'PhysicalResourceId': resource['PhysicalResourceId']
                 }})

@@ -2,7 +2,7 @@
 
 import logging
 
-from .aws_client import CloudFormation, CloudFormationError
+from clouds_aws.remote_stack.aws_client import CloudFormation, CloudFormationError
 
 LOG = logging.getLogger(__name__)
 
@@ -16,8 +16,6 @@ class RemoteStack(object):
         """
         self.name = name
         self.cfn = CloudFormation(region)
-
-        self.eventsNextToken = None
 
         self.template = {}
         self.parameters = {}
@@ -54,9 +52,11 @@ class RemoteStack(object):
         """
         raise RuntimeError("Not implemented")
 
-    def describe(self):
-        """
-        Return information about stack resources
-        :return:
-        """
-        raise RuntimeError("Not implemented")
+
+def list_stacks(region):
+    """
+    List remote stacks
+    :param region:
+    :return:
+    """
+    return CloudFormation(region).list_stacks()

@@ -1,10 +1,10 @@
 """ LocalStack class """
 
 import logging
-from os import path, curdir, mkdir
+from os import path, curdir, mkdir, scandir
 
-from .parameters import Parameters
-from .template import Template
+from clouds_aws.local_stack.parameters import Parameters
+from clouds_aws.local_stack.template import Template
 
 LOG = logging.getLogger(__name__)
 
@@ -44,3 +44,20 @@ class LocalStack(object):
         """
         self.template.load()
         self.parameters.load()
+
+
+def list_stacks():
+    """
+    Return list of local stacks
+    :return:
+    """
+    stacks = []
+
+    if not path.isdir(path.join(curdir, STACKS_PREFIX)):
+        return stacks
+
+    for item in scandir(path.join(curdir, STACKS_PREFIX)):
+        if path.isdir(item):
+            stacks.append(item)
+
+    return stacks
