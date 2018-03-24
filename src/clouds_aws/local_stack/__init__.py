@@ -4,7 +4,7 @@ import logging
 from os import path, curdir, mkdir, scandir
 
 from clouds_aws.local_stack.parameters import Parameters
-from clouds_aws.local_stack.template import Template
+from clouds_aws.local_stack.template import Template, TYPE_YAML, TYPE_JSON
 
 LOG = logging.getLogger(__name__)
 
@@ -26,15 +26,21 @@ class LocalStack(object):
         self.template = Template(self.path)
         self.parameters = Parameters(self.path)
 
-    def save(self):
+    def save(self, tpl_format=None):
         """
         Save stack to disk
+        :param tpl_format: template format
         :return:
         """
         if not path.isdir(path.dirname(self.path)):
             mkdir(path.dirname(self.path))
         if not path.isdir(self.path):
             mkdir(self.path)
+
+        if tpl_format == "yaml":
+            self.template.type = TYPE_YAML
+        elif tpl_format == "json":
+            self.template.type = TYPE_JSON
 
         self.template.save()
         self.parameters.save()
