@@ -73,6 +73,13 @@ class Template(object):
         else:
             raise TemplateError("Invalid type value")
 
+    def exists(self):
+        """
+        Return true if file exists on disk
+        :return:
+        """
+        return path.exists(self._filename())
+
     def _filename(self, with_path=True):
         """
         Return file name (with path)

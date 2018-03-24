@@ -2,9 +2,10 @@
 
 import logging
 
-from clouds_aws.helpers import dump_json, dict_merge
-from clouds_aws.remote_stack import RemoteStack, CloudFormationError
 from tabulate import tabulate
+
+from clouds_aws.helpers import dump_json
+from clouds_aws.remote_stack import RemoteStack, CloudFormationError
 
 LOG = logging.getLogger(__name__)
 
@@ -49,7 +50,8 @@ def cmd_describe(args):
             print()
 
         print(tabulate(
-            [(key, val["ResourceType"], val["PhysicalResourceId"]) for key, val in stack.resources.items()],
+            [(key, val["ResourceType"], val["PhysicalResourceId"])
+             for key, val in stack.resources.items()],
             ("Resource", "Type", "PhysicalId")
         ))
         print()
@@ -57,4 +59,3 @@ def cmd_describe(args):
     except CloudFormationError as err:
         LOG.error(err)
         exit(1)
-

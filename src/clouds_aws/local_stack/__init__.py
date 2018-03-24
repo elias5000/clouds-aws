@@ -31,6 +31,8 @@ class LocalStack(object):
         Save stack to disk
         :return:
         """
+        if not path.isdir(path.dirname(self.path)):
+            mkdir(path.dirname(self.path))
         if not path.isdir(self.path):
             mkdir(self.path)
 
@@ -44,6 +46,16 @@ class LocalStack(object):
         """
         self.template.load()
         self.parameters.load()
+
+    def update(self, template, parameters):
+        """
+        Update template and parameters
+        :param template: template dict
+        :param parameters: parameters dict
+        :return:
+        """
+        self.template.template = template
+        self.parameters.parameters = parameters
 
 
 def list_stacks():

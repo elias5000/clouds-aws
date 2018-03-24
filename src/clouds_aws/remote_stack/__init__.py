@@ -38,8 +38,8 @@ class RemoteStack(object):
     def update(self, template, parameters):
         """
         Update stack in CloudFormation
-        :param template:
-        :param parameters:
+        :param template: template body
+        :param parameters: parameters dict
         :return:
         """
         raise RuntimeError("Not implemented")
