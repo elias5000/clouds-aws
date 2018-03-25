@@ -42,16 +42,16 @@ def cmd_describe(args):
             return
 
         if stack.parameters:
-            print(tabulate(stack.parameters.items(), ("Parameter", "Value")))
+            print(tabulate(sorted(stack.parameters.items()), ("Parameter", "Value")))
             print()
 
         if stack.outputs:
-            print(tabulate(stack.outputs.items(), ("Output", "Value")))
+            print(tabulate(sorted(stack.outputs.items()), ("Output", "Value")))
             print()
 
         print(tabulate(
-            [(key, val["ResourceType"], val["PhysicalResourceId"])
-             for key, val in stack.resources.items()],
+            sorted([(key, val["ResourceType"], val["PhysicalResourceId"])
+                    for key, val in stack.resources.items()]),
             ("Resource", "Type", "PhysicalId")
         ))
         print()
