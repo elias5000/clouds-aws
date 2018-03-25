@@ -77,6 +77,6 @@ def list_stacks():
 
     for item in scandir(path.join(curdir, STACKS_PREFIX)):
         if path.isdir(item):
-            stacks.append(item)
+            stacks.append(item.name)
 
     return stacks

@@ -32,4 +32,4 @@ def cmd_list(args):
         for stack in [key for key in local_stacks() if key not in stacks.keys()]:
             stacks[stack] = 'LOCAL_ONLY'
 
-    print(tabulate(stacks.items(), ("Name", "Status")))
+    print(tabulate(sorted(stacks.items()), ("Name", "Status")))
