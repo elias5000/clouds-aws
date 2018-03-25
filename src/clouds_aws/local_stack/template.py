@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 
 TYPE_JSON = 0
 TYPE_YAML = 1
-TYPE_DEFAULT = TYPE_YAML
+TYPE_DEFAULT = TYPE_JSON
 
 
 class TemplateError(Exception):
