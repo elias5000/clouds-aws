@@ -44,7 +44,7 @@ def dump_stack(region, stack, tpl_format, force):
     """
     Dump one stack to files
     :param region: aws region
-    :param stack: stack nametype
+    :param stack: stack type
     :param tpl_format: template format
     :param force: force overwrite
     :return:

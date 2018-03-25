@@ -37,12 +37,13 @@ class LocalStack(object):
         if not path.isdir(self.path):
             mkdir(self.path)
 
-        if tpl_format == "yaml":
-            self.template.type = TYPE_YAML
-        elif tpl_format == "json":
-            self.template.type = TYPE_JSON
+        save_as = None
+        if tpl_format == "json":
+            save_as = TYPE_JSON
+        elif tpl_format == "yaml":
+            save_as = TYPE_YAML
 
-        self.template.save()
+        self.template.save(save_as)
         self.parameters.save()
 
     def load(self):

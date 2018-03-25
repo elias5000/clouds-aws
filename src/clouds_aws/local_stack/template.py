@@ -2,7 +2,7 @@
 
 import json
 import logging
-from os import path
+from os import path, unlink
 
 import yaml
 
@@ -27,7 +27,6 @@ class Template(object):
         """
         Initialize empty CloudFormation template of specific type
         :param stack_path: stack directory path
-        :param template_type:
         """
         LOG.debug("Initializing new template in path %s", stack_path)
         self.path = stack_path
@@ -59,11 +58,17 @@ class Template(object):
         else:
             raise TemplateError("Invalid type value")
 
-    def save(self):
+    def save(self, tpl_format=None):
         """
         Save template to file
+        :param tpl_format: template format
         :return:
         """
+        if tpl_format is not None and tpl_format != self.type:
+            LOG.info("Saving as format: %s", tpl_format)
+            self.unlink()
+            self.type = tpl_format
+
         if self.type == TYPE_JSON:
             self._save_json()
 
@@ -79,6 +84,13 @@ class Template(object):
         :return:
         """
         return path.exists(self._filename())
+
+    def unlink(self):
+        """
+        Delete template file
+        :return:
+        """
+        unlink(self._filename())
 
     def _filename(self, with_path=True):
         """
