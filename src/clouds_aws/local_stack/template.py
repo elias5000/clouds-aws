@@ -49,14 +49,16 @@ class Template(object):
         Load template from file
         :return:
         """
-        if self.type == TYPE_JSON:
-            self._load_json()
+        try:
+            if self.type == TYPE_JSON:
+                self._load_json()
 
-        elif self.type == TYPE_YAML:
-            self._load_yaml()
-
-        else:
-            raise TemplateError("Invalid type value")
+            elif self.type == TYPE_YAML:
+                self._load_yaml()
+            else:
+                raise TemplateError("Invalid type value")
+        except FileNotFoundError as err:
+            raise TemplateError(err)
 
     def save(self, tpl_format=None):
         """

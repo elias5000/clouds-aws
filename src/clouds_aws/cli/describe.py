@@ -16,10 +16,10 @@ def add_parser(subparsers):
     :param subparsers:
     :return:
     """
-    parser = subparsers.add_parser('describe', help='output parameters, outputs, and '
-                                                    'resources of a stack in AWS')
-    parser.add_argument('-j', '--json', action='store_true', help='output as JSON')
-    parser.add_argument('stack', help='stack to describe')
+    parser = subparsers.add_parser("describe", help="output parameters, outputs, and "
+                                                    "resources of a stack in AWS")
+    parser.add_argument("-j", "--json", action="store_true", help="output as JSON")
+    parser.add_argument("stack", help="stack to describe")
     parser.set_defaults(func=cmd_describe)
 
 

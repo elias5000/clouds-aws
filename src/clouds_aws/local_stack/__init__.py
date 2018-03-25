@@ -4,11 +4,16 @@ import logging
 from os import path, curdir, mkdir, scandir
 
 from clouds_aws.local_stack.parameters import Parameters
-from clouds_aws.local_stack.template import Template, TYPE_YAML, TYPE_JSON
+from clouds_aws.local_stack.template import Template, TemplateError, TYPE_YAML, TYPE_JSON
 
 LOG = logging.getLogger(__name__)
 
 STACKS_PREFIX = "stacks"
+
+
+class LocalStackError(Exception):
+    """ Custom errors for LocalStack """
+    pass
 
 
 class LocalStack(object):
@@ -51,7 +56,14 @@ class LocalStack(object):
         Re-Loading stack from disk
         :return:
         """
-        self.template.load()
+        if not path.isdir(self.path):
+            raise LocalStackError("No such stack: %s" % self.name)
+
+        try:
+            self.template.load()
+        except TemplateError as err:
+            raise LocalStackError("Failed to load stack template: %s" % str(err))
+
         self.parameters.load()
 
     def update(self, template, parameters):
