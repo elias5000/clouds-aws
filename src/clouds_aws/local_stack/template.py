@@ -92,7 +92,10 @@ class Template(object):
         Delete template file
         :return:
         """
-        unlink(self._filename())
+        try:
+            unlink(self._filename())
+        except FileNotFoundError:
+            pass
 
     def _filename(self, with_path=True):
         """
