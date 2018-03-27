@@ -1,7 +1,7 @@
 """ AWS API client class """
 
-import logging
 import json
+import logging
 
 import boto3
 
@@ -49,6 +49,30 @@ class CloudFormation(object):
 
         return remote_stacks
 
+    def describe_stack_events(self, stack):
+        """
+        Return all stack events
+        :param stack: stack name
+        :return:
+        """
+        events = []
+
+        raw_events = self.client.describe_stack_events(StackName=stack)
+        for raw_event in raw_events["StackEvents"]:
+            events.append(raw_event)
+
+        while True:
+            try:
+                next_token = raw_events["NextToken"]
+                raw_events = self.client.describe_stack_events(StackName=stack,
+                                                               NextToken=next_token)
+                for raw_event in raw_events["StackEvents"]:
+                    events.append(raw_event)
+            except KeyError:
+                break
+
+        return reversed(events)
+
     def describe_stack(self, stack):
         """
         Return stack details
@@ -72,9 +96,10 @@ class CloudFormation(object):
 
         # output json
         stack_data = {
-            'Parameters': {},
-            'Outputs': {},
-            'Resources': {}
+            "Parameters": {},
+            "Outputs": {},
+            "Resources": {},
+            "Status": stack_desc["StackStatus"],
         }
         if params:
             for param in params:

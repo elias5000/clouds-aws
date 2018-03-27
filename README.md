@@ -15,6 +15,7 @@ clouds-aws is a tool that aims to ease the handling of Cloudformation stacks as 
 ## Install requirements
 *   boto3
 *   PyYAML
+*   tabulate
 
 ## Commands
 For a list of all commands and features run:
