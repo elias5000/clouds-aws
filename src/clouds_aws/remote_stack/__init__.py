@@ -17,7 +17,6 @@ class RemoteStack(object):
         self.name = name
         self.cfn = CloudFormation(region)
 
-        self.status = ""
         self.template = {}
         self.parameters = {}
 
@@ -35,7 +34,6 @@ class RemoteStack(object):
         self.parameters = stack_data["Parameters"]
         self.outputs = stack_data["Outputs"]
         self.resources = stack_data["Resources"]
-        self.status = stack_data["Status"]
 
         self.template = self.cfn.get_template(self.name)
         self._update_events()

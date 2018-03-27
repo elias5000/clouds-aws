@@ -1,6 +1,7 @@
 """ Command parser definition """
 
 from sys import stdout
+from time import sleep
 
 from clouds_aws.remote_stack import RemoteStack
 
@@ -27,6 +28,31 @@ def cmd_events(args):
     stack = RemoteStack(args.stack)
     stack.load()
     print_events(stack.events)
+
+    # poll forever
+    if args.follow:
+        try:
+            while True:
+                exit_if_transition_finished(stack.events)
+                sleep(5)
+                new_events = stack.poll_events()
+                if new_events:
+                    print_events(new_events)
+        except KeyboardInterrupt:
+            exit(0)
+
+
+def exit_if_transition_finished(events):
+    """
+    Exits if the stack reached a stable state
+    :param events:
+    :return:
+    """
+    if events and events[-1]["ResourceType"] == "AWS::CloudFormation::Stack":
+        if events[-1]["ResourceStatus"][-8:] == 'COMPLETE':
+            exit(0)
+        if events[-1]["ResourceStatus"] == 'DELETE_FAILED':
+            exit(1)
 
 
 def print_events(events):

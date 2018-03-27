@@ -99,7 +99,6 @@ class CloudFormation(object):
             "Parameters": {},
             "Outputs": {},
             "Resources": {},
-            "Status": stack_desc["StackStatus"],
         }
         if params:
             for param in params:
