@@ -39,14 +39,4 @@ def main():
         LOG.setLevel(logging.DEBUG)
         logging.basicConfig(level=logging.DEBUG)
 
-    try:
-        args.func(args)
-
-    # catch boto3 exceptions on a high level:
-    except botocore.exceptions.NoRegionError as err:
-        LOG.error(str(err))
-        sys.exit(1)
-
-    except botocore.exceptions.ClientError as err:
-        LOG.error(str(err))
-        sys.exit(1)
+    args.func(args)

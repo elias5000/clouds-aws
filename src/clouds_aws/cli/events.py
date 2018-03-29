@@ -1,9 +1,12 @@
 """ Command parser definition """
 
+import logging
 from sys import stdout
 from time import sleep
 
-from clouds_aws.remote_stack import RemoteStack
+from clouds_aws.remote_stack import RemoteStack, RemoteStackError
+
+LOG = logging.getLogger(__name__)
 
 
 def add_parser(subparsers):
@@ -29,17 +32,27 @@ def cmd_events(args):
     stack.load()
     print_events(stack.events)
 
-    # poll forever
+    # poll until stable state is reached
     if args.follow:
+        poll_events(stack)
+
+
+def poll_events(stack, display=True):
+    """
+    :param stack: remote stack object
+    :param display:
+    :return:
+    """
+    while True:
+        sleep(5)
         try:
-            while True:
-                exit_if_transition_finished(stack.events)
-                sleep(5)
-                new_events = stack.poll_events()
-                if new_events:
-                    print_events(new_events)
-        except KeyboardInterrupt:
+            new_events = stack.poll_events()
+        except RemoteStackError as err:
+            LOG.warning(err)
             exit(0)
+        if new_events:
+            print_events(new_events)
+        exit_if_transition_finished(stack.events)
 
 
 def exit_if_transition_finished(events):

@@ -59,6 +59,19 @@ class Parameters(object):
         with open(self._filename(), "w") as param_fp:
             param_fp.write(dump_yaml(self.parameters))
 
+    def as_list(self):
+        """
+        Return params list
+        :return:
+        """
+        params = []
+        for key, val in self.parameters.items():
+            params.append({
+                "ParameterKey": key,
+                "ParameterValue": val
+            })
+        return params
+
     def _filename(self, with_path=True):
         """
         Return file name (with path)

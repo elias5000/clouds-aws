@@ -7,6 +7,11 @@ from clouds_aws.remote_stack.aws_client import CloudFormation, CloudFormationErr
 LOG = logging.getLogger(__name__)
 
 
+class RemoteStackError(Exception):
+    """ Custom errors for RemoteStack class """
+    pass
+
+
 class RemoteStack(object):
     """ Remote CloudFormation stack in AWS """
 
@@ -38,24 +43,43 @@ class RemoteStack(object):
         self.template = self.cfn.get_template(self.name)
         self._update_events()
 
+    def create(self, template, parameters):
+        """
+        Create stack in CloudFormation
+        :param template: template object
+        :param parameters: parameters object
+        :return:
+        """
+        self.cfn.create_stack(self.name, template, parameters)
+
     def update(self, template, parameters):
         """
         Update stack in CloudFormation
-        :param template: template body
-        :param parameters: parameters dict
+        :param template: template object
+        :param parameters: parameters object
         :return:
         """
-        raise RuntimeError("Not implemented")
+        self.cfn.update_stack(self.name, template, parameters)
+
+    def delete(self):
+        """
+        Deletes stack from AWS
+        :return:
+        """
+        self.cfn.delete_stack(self.name)
 
     def _update_events(self):
         """
         Update stack events from AWS API
         :return:
         """
-        for event in self.cfn.describe_stack_events(self.name):
-            if self.events and event["Timestamp"] <= self.events[-1]["Timestamp"]:
-                continue
-            self.events.append(event)
+        try:
+            for event in self.cfn.describe_stack_events(self.name):
+                if self.events and event["Timestamp"] <= self.events[-1]["Timestamp"]:
+                    continue
+                self.events.append(event)
+        except CloudFormationError as err:
+            raise RemoteStackError(err)
 
     def poll_events(self):
         """

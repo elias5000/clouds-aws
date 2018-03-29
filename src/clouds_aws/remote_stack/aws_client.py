@@ -5,7 +5,10 @@ import logging
 
 import boto3
 
+from clouds_aws.local_stack import Template, Parameters
+
 LOG = logging.getLogger(__name__)
+CAPABILITIES = ['CAPABILITY_IAM']
 
 
 class CloudFormationError(Exception):
@@ -55,8 +58,10 @@ class CloudFormation(object):
         :param stack: stack name
         :return:
         """
-        events = []
+        if stack not in self.list_stacks():
+            raise CloudFormationError("No such stack: %s" % stack)
 
+        events = []
         raw_events = self.client.describe_stack_events(StackName=stack)
         for raw_event in raw_events["StackEvents"]:
             events.append(raw_event)
@@ -116,6 +121,47 @@ class CloudFormation(object):
                 }})
 
         return stack_data
+
+    def create_stack(self, name, template, parameters):
+        """
+        Create stack in AWS
+        :param name: stack name
+        :param template: template dict
+        :param parameters: parameters dict
+        :return:
+        """
+        self.client.create_stack(
+            StackName=name,
+            TemplateBody=template.as_string(),
+            Parameters=parameters.as_list(),
+            Capabilities=CAPABILITIES,
+            OnFailure="DELETE"
+        )
+
+    def update_stack(self, name, template, parameters):
+        """
+        Update stack in AWS
+        :type template: Template
+        :param template:
+        :type parameters: Parameters
+        :param parameters:
+        :return:
+        """
+        stack = boto3.resource('cloudformation', self.region).Stack(name)
+        stack.update(
+            TemplateBody=template.as_string(),
+            Parameters=parameters.as_list(),
+            Capabilities=CAPABILITIES,
+        )
+
+    def delete_stack(self, name):
+        """
+        Deletes stack in AWS
+        :param name: stack name
+        :return:
+        """
+        stack = boto3.resource('cloudformation', self.region).Stack(name)
+        stack.delete()
 
     def get_template(self, stack):
         """

@@ -1,5 +1,12 @@
 """ Command parser definition """
 
+import logging
+
+from clouds_aws.cli.events import poll_events
+from clouds_aws.remote_stack import RemoteStack, list_stacks as remote_stacks
+
+LOG = logging.getLogger(__name__)
+
 
 def add_parser(subparsers):
     """
@@ -19,5 +26,23 @@ def add_parser(subparsers):
 
 
 def cmd_delete(args):
-    """deletes a stack in AWS."""
-    raise RuntimeError("Not implemented")
+    """
+    Delete stack in AWS
+    :param args:
+    :return:
+    """
+    if args.stack not in remote_stacks(args.region):
+        LOG.warning("Stack %s does not exist", args.stack)
+        exit(1)
+
+    if not args.force:
+        LOG.warning("You have to apply force to delete %s", args.stack)
+        exit(1)
+
+    remote_stack = RemoteStack(args.stack)
+    remote_stack.load()
+    remote_stack.delete()
+
+    # poll until stable state is reached
+    if args.events or args.wait:
+        poll_events(remote_stack, not args.events)

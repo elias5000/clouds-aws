@@ -80,6 +80,18 @@ class Template(object):
         else:
             raise TemplateError("Invalid type value")
 
+    def as_string(self):
+        """
+        Return template as string
+        :return:
+        """
+        if self.type == TYPE_JSON:
+            return dump_json(self.template)
+        elif self.type == TYPE_YAML:
+            return dump_yaml(self.template)
+        else:
+            raise TemplateError("Invalid type value")
+
     def exists(self):
         """
         Return true if file exists on disk
