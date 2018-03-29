@@ -50,7 +50,7 @@ def poll_events(stack, display=True):
         except RemoteStackError as err:
             LOG.warning(err)
             exit(0)
-        if new_events:
+        if new_events and display:
             print_events(new_events)
         exit_if_transition_finished(stack.events)
 

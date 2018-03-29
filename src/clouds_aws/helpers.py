@@ -46,17 +46,3 @@ def dump_yaml(template):
     :return:
     """
     return yaml.dump(template, default_flow_style=False, explicit_start=True)
-
-
-def dict_merge(dict_a, dict_b):
-    """
-    Merge two dicts into a new dict
-    :param dict_a:
-    :param dict_b:
-    :return:
-    """
-    dict_c = dict_a.copy()
-    dict_c.update(dict_b)
-    return dict_c
-
-

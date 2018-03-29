@@ -5,8 +5,6 @@ import logging
 
 import boto3
 
-from clouds_aws.local_stack import Template, Parameters
-
 LOG = logging.getLogger(__name__)
 CAPABILITIES = ['CAPABILITY_IAM']
 
