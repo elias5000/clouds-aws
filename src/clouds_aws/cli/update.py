@@ -59,4 +59,4 @@ def cmd_update(args):
 
     # poll until stable state is reached
     if args.events or args.wait:
-        poll_events(remote_stack, not args.events)
+        poll_events(remote_stack, args.events)
