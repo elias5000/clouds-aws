@@ -1,9 +1,11 @@
 """ AWS API client class """
 
-import json
 import logging
+from collections import OrderedDict
 
 import boto3
+
+from clouds_aws.helpers import dump_json
 
 LOG = logging.getLogger(__name__)
 CAPABILITIES = ['CAPABILITY_IAM']
@@ -139,6 +141,7 @@ class CloudFormation(object):
     def update_stack(self, name, template, parameters):
         """
         Update stack in AWS
+        :param name: stack name
         :type template: Template
         :param template:
         :type parameters: Parameters
@@ -167,5 +170,11 @@ class CloudFormation(object):
         :param stack: stack name
         :return:
         """
-        template = self.client.get_template(StackName=stack)["TemplateBody"]
-        return json.loads(json.dumps(template))
+        # return as string
+        tpl_body = self.client.get_template(StackName=stack)["TemplateBody"]
+
+        # JSON is returned as OrderedDict by boto3 client
+        if isinstance(tpl_body, OrderedDict):
+            return dump_json(tpl_body)
+
+        return tpl_body

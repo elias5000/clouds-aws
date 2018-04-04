@@ -31,10 +31,9 @@ class LocalStack(object):
         self.template = Template(self.path)
         self.parameters = Parameters(self.path)
 
-    def save(self, tpl_format=None):
+    def save(self):
         """
         Save stack to disk
-        :param tpl_format: template format
         :return:
         """
         if not path.isdir(path.dirname(self.path)):
@@ -42,13 +41,7 @@ class LocalStack(object):
         if not path.isdir(self.path):
             mkdir(self.path)
 
-        save_as = None
-        if tpl_format == "json":
-            save_as = TYPE_JSON
-        elif tpl_format == "yaml":
-            save_as = TYPE_YAML
-
-        self.template.save(save_as)
+        self.template.save()
         self.parameters.save()
 
     def load(self):
@@ -66,15 +59,17 @@ class LocalStack(object):
 
         self.parameters.load()
 
-    def update(self, template, parameters):
+    def update(self, new_template, new_parameters):
         """
         Update template and parameters
-        :param template: template dict
-        :param parameters: parameters dict
+        :type new_template: str
+        :param new_template: template string
+        :type new_parameters: dict
+        :param new_parameters: parameters dict
         :return:
         """
-        self.template.template = template
-        self.parameters.parameters = parameters
+        self.template.from_string(new_template)
+        self.parameters.parameters = new_parameters
 
 
 def list_stacks():

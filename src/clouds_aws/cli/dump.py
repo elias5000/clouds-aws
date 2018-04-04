@@ -19,8 +19,6 @@ def add_parser(subparsers):
     parser.add_argument("-a", "--all", action="store_true", help="dump all stacks")
     parser.add_argument("-f", "--force", action="store_true",
                         help="overwrite existing local stack")
-    parser.add_argument("-t", "--type", help="template format", choices=["yaml", "json"],
-                        default=None)
     parser.add_argument("stack", help="stack to dump", nargs="*")
     parser.set_defaults(func=cmd_dump)
 
@@ -37,15 +35,14 @@ def cmd_dump(args):
     else:
         stacks = args.stack
     for stack in stacks:
-        dump_stack(args.region, stack, args.type, args.force)
+        dump_stack(args.region, stack, args.force)
 
 
-def dump_stack(region, stack, tpl_format, force):
+def dump_stack(region, stack, force):
     """
     Dump one stack to files
     :param region: aws region
     :param stack: stack type
-    :param tpl_format: template format
     :param force: force overwrite
     :return:
     """
@@ -67,4 +64,4 @@ def dump_stack(region, stack, tpl_format, force):
 
     LOG.info("Saving local stack %s", stack)
     local.update(remote.template, remote.parameters)
-    local.save(tpl_format)
+    local.save()

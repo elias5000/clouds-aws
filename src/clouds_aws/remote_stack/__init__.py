@@ -22,7 +22,7 @@ class RemoteStack(object):
         self.name = name
         self.cfn = CloudFormation(region)
 
-        self.template = {}
+        self.template = ""
         self.parameters = {}
 
         self.outputs = {}
@@ -55,7 +55,9 @@ class RemoteStack(object):
     def update(self, template, parameters):
         """
         Update stack in CloudFormation
+        :type template: Template
         :param template: template object
+        :type parameters: Parameters
         :param parameters: parameters object
         :return:
         """

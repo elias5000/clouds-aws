@@ -2,6 +2,8 @@
 
 import logging
 
+from botocore.exceptions import ClientError
+
 from clouds_aws.cli.events import poll_events
 from clouds_aws.local_stack import LocalStack, LocalStackError
 from clouds_aws.remote_stack import RemoteStack, list_stacks as remote_stacks
@@ -44,15 +46,25 @@ def cmd_update(args):
 
     if args.stack in remote_stacks(args.region):
         remote_stack.load()
-        remote_stack.update(
-            local_stack.template,
-            local_stack.parameters
-        )
+        try:
+            remote_stack.update(
+                local_stack.template,
+                local_stack.parameters
+            )
+        except ClientError as err:
+            if "No updates are to be performed" in str(err):
+                LOG.warning("No updates are to be performed")
+                exit(0)
+            else:
+                LOG.error()
+                exit(1)
+
     elif args.create_missing:
         remote_stack.create(
             local_stack.template,
             local_stack.parameters
         )
+
     else:
         LOG.error("Stack %s does not exist. Not updating without explicit create", args.stack)
         exit(1)

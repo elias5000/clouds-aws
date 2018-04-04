@@ -41,5 +41,7 @@ def cmd_clone(args):
         LOG.warning("Stack %s already exists. Not overwriting without force", args.new_stack)
         return
 
-    new.update(local.template.template, local.parameters.parameters)
-    new.save(args.type)
+    # FIXME: Convert template if args.type is not None
+
+    new.update(local.template.as_string(), local.parameters.parameters)
+    new.save()
