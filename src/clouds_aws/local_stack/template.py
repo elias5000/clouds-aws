@@ -92,6 +92,20 @@ class Template(object):
         """
         return self._template
 
+    def as_dict(self):
+        """
+        Return template as dictionary
+        :return:
+        """
+        if self.tpl_format == TYPE_JSON:
+            return json.loads(self._template)
+
+        elif self.tpl_format == TYPE_YAML:
+            return yaml.load(self._template)
+
+        else:
+            raise TemplateError("Invalid template format value")
+
     def exists(self):
         """
         Return true if file exists on disk

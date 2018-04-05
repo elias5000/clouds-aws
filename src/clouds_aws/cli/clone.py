@@ -3,6 +3,7 @@
 import logging
 
 from clouds_aws.local_stack import LocalStack, LocalStackError
+from clouds_aws.helpers import dump_json, dump_yaml
 
 LOG = logging.getLogger(__name__)
 
@@ -41,7 +42,12 @@ def cmd_clone(args):
         LOG.warning("Stack %s already exists. Not overwriting without force", args.new_stack)
         return
 
-    # FIXME: Convert template if args.type is not None
+    if args.type == "json":
+        template = dump_json(local.template.as_dict())
+    elif args.type == "yaml":
+        template = dump_yaml(local.template.as_dict())
+    else:
+        template = local.template.as_string()
 
-    new.update(local.template.as_string(), local.parameters.parameters)
+    new.update(template, local.parameters.parameters)
     new.save()
