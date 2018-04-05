@@ -28,7 +28,7 @@ def cmd_events(args):
     :param args:
     :return:
     """
-    stack = RemoteStack(args.stack)
+    stack = RemoteStack(args.stack, args.region)
     stack.load()
     print_events(stack.events)
 

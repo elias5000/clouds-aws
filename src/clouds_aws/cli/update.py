@@ -4,8 +4,8 @@ import logging
 
 from botocore.exceptions import ClientError
 
+from clouds_aws.cli.common import load_local_stack
 from clouds_aws.cli.events import poll_events
-from clouds_aws.local_stack import LocalStack, LocalStackError
 from clouds_aws.remote_stack import RemoteStack, list_stacks as remote_stacks
 
 LOG = logging.getLogger(__name__)
@@ -35,13 +35,7 @@ def cmd_update(args):
     :param args:
     :return:
     """
-    local_stack = LocalStack(args.stack)
-    try:
-        local_stack.load()
-    except LocalStackError as err:
-        LOG.error(err)
-        exit(1)
-
+    local_stack = load_local_stack(args.stack)
     remote_stack = RemoteStack(args.stack, args.region)
 
     if args.stack in remote_stacks(args.region):

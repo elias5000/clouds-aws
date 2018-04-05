@@ -4,6 +4,7 @@ import logging
 from collections import OrderedDict
 
 import boto3
+from botocore.exceptions import ClientError
 
 from clouds_aws.local_stack.helpers import dump_json
 
@@ -178,3 +179,14 @@ class CloudFormation(object):
             return dump_json(tpl_body)
 
         return tpl_body
+
+    def validate(self, tpl_body):
+        """
+        Validate template using the API
+        :param tpl_body: template as string
+        :return:
+        """
+        try:
+            self.client.validate_template(TemplateBody=tpl_body)
+        except ClientError as err:
+            raise CloudFormationError(err)
