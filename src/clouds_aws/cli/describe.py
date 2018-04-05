@@ -4,7 +4,7 @@ import logging
 
 from tabulate import tabulate
 
-from clouds_aws.helpers import dump_json
+from clouds_aws.local_stack.helpers import dump_json
 from clouds_aws.remote_stack import RemoteStack, CloudFormationError
 
 LOG = logging.getLogger(__name__)

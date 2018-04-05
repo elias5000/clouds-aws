@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 import boto3
 
-from clouds_aws.helpers import dump_json
+from clouds_aws.local_stack.helpers import dump_json
 
 LOG = logging.getLogger(__name__)
 CAPABILITIES = ['CAPABILITY_IAM']
