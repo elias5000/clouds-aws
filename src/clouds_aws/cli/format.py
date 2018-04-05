@@ -1,5 +1,16 @@
 """ Command parser definition """
 
+import json
+import logging
+from sys import stdin
+
+from clouds_aws.cli.common import load_local_stack
+from clouds_aws.local_stack import list_stacks as local_stacks
+from clouds_aws.local_stack.helpers import dump_json
+from clouds_aws.local_stack.template import TYPE_JSON
+
+LOG = logging.getLogger(__name__)
+
 
 def add_parser(subparsers):
     """
@@ -17,5 +28,34 @@ def add_parser(subparsers):
 
 
 def cmd_reformat(args):
-    """reformat stack"""
-    raise RuntimeError("Not implemented")
+    """
+    Reformat stack(s)
+    :param args:
+    :return:
+    """
+    if args.pipe:
+        print(dump_json(json.loads(stdin.read())))
+        exit()
+
+    stacks = args.stack
+    if args.all:
+        stacks = local_stacks()
+
+    for stack in stacks:
+        LOG.info("Formatting stack %s", stack)
+        reformat_stack(stack)
+
+
+def reformat_stack(stack_name):
+    """
+    Reformat stack in place
+    :param stack_name:
+    :return:
+    """
+    stack = load_local_stack(stack_name)
+    if stack.template.tpl_format != TYPE_JSON:
+        LOG.warning("Cannot reformat stack %s: not of type JSON")
+        return
+
+    stack.update(dump_json(stack.template.as_dict()), stack.parameters.parameters)
+    stack.save()
