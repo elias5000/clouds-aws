@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 from clouds_aws.local_stack.helpers import dump_json
 
 LOG = logging.getLogger(__name__)
-CAPABILITIES = ['CAPABILITY_IAM']
+CAPABILITIES = ['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM']
 
 
 class CloudFormationError(Exception):
