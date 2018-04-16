@@ -22,7 +22,7 @@ def add_parsers(subparsers):
     clouds_aws.cli.describe.add_parser(subparsers)
     clouds_aws.cli.dump.add_parser(subparsers)
     clouds_aws.cli.events.add_parser(subparsers)
-    # clouds_aws.cli.format.add_parser(subparsers)
+    clouds_aws.cli.format.add_parser(subparsers)
     clouds_aws.cli.list.add_parser(subparsers)
     clouds_aws.cli.update.add_parser(subparsers)
     clouds_aws.cli.validate.add_parser(subparsers)
