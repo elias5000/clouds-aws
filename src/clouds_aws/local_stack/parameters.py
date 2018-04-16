@@ -2,9 +2,7 @@
 import logging
 from os import path, unlink
 
-import yaml
-
-from clouds_aws.local_stack.helpers import dump_yaml
+from clouds_aws.local_stack.helpers import dump_yaml, load_yaml
 
 LOG = logging.getLogger(__name__)
 
@@ -39,7 +37,7 @@ class Parameters(object):
 
         LOG.debug("Loading parameters from file %s", self._filename())
         with open(self._filename()) as param_fp:
-            self.parameters = yaml.load(param_fp)
+            self.parameters = load_yaml(param_fp)
 
     def save(self):
         """

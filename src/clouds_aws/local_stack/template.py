@@ -6,6 +6,8 @@ from os import path, unlink
 
 import yaml
 
+from clouds_aws.local_stack.helpers import load_yaml
+
 LOG = logging.getLogger(__name__)
 
 TYPE_JSON = 1
@@ -77,7 +79,7 @@ class Template(object):
             pass
 
         try:
-            yaml.load(template)
+            load_yaml(template)
             self.tpl_format = TYPE_YAML
             return
         except yaml.YAMLError:
@@ -101,7 +103,7 @@ class Template(object):
             return json.loads(self._template)
 
         elif self.tpl_format == TYPE_YAML:
-            return yaml.load(self._template)
+            return load_yaml(self._template)
 
         else:
             raise TemplateError("Invalid template format value")

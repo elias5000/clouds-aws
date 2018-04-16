@@ -46,3 +46,24 @@ def dump_yaml(template):
     :return:
     """
     return yaml.dump(template, default_flow_style=False, explicit_start=True)
+
+
+def _general_constructor(loader, tag_suffix, node):
+    """
+    Constructor for short function syntax
+    :param loader:
+    :param tag_suffix:
+    :param node:
+    :return:
+    """
+    return node.value
+
+
+def load_yaml(data):
+    """
+    Safely load YAML into dictionary
+    :param data:
+    :return:
+    """
+    yaml.add_multi_constructor(u'!', _general_constructor)
+    return yaml.load(data)
