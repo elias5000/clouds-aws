@@ -1,14 +1,16 @@
 """ Template class """
 
 import json
-import logging
-from os import path, unlink
 
-import yaml
 try:
     from json import JSONDecodeError
 except ImportError:
     JSONDecodeError = ValueError
+
+import logging
+from os import path, unlink
+
+import yaml
 
 from clouds_aws.local_stack.helpers import load_yaml
 

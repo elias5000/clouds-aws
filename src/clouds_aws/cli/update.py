@@ -50,14 +50,18 @@ def cmd_update(args):
                 LOG.warning("No updates are to be performed")
                 exit(0)
             else:
-                LOG.error()
+                LOG.error(err)
                 exit(1)
 
     elif args.create_missing:
-        remote_stack.create(
-            local_stack.template,
-            local_stack.parameters
-        )
+        try:
+            remote_stack.create(
+                local_stack.template,
+                local_stack.parameters
+            )
+        except ClientError as err:
+            LOG.error(err)
+            exit(1)
 
     else:
         LOG.error("Stack %s does not exist. Not updating without explicit create", args.stack)
