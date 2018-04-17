@@ -38,12 +38,8 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: Unix',
 
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.6',
 
         'Topic :: System :: Installation/Setup',
         'Topic :: Utilities'
@@ -51,8 +47,9 @@ setup(
 
     keywords='aws cloudformation devops',
 
+    packages=find_packages('src'),
     package_dir={'': 'src'},
-    packages=find_packages(),
+
     entry_points={
         'console_scripts': [
             'clouds=clouds_aws:main'
