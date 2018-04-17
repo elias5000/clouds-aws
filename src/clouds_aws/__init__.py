@@ -17,7 +17,8 @@ def main():
     :return:
     """
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(dest='command')
+    subparsers.required = True
 
     parser.add_argument('-d', '--debug', action='store_true', help='loglevel: debug')
     parser.add_argument('-f', '--force', action='store_true',
