@@ -3,10 +3,7 @@
 import logging
 from os import path, curdir, mkdir
 
-try:
-    from os import scandir
-except ImportError:
-    from scandir import scandir
+from scandir import scandir
 
 from clouds_aws.local_stack.parameters import Parameters
 from clouds_aws.local_stack.template import Template, TemplateError, TYPE_YAML, TYPE_JSON
@@ -88,7 +85,7 @@ def list_stacks():
         return stacks
 
     for item in scandir(path.join(curdir, STACKS_PREFIX)):
-        if path.isdir(item):
+        if item.is_dir():
             stacks.append(item.name)
 
     return stacks
