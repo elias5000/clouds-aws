@@ -5,6 +5,10 @@ import logging
 from os import path, unlink
 
 import yaml
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 
 from clouds_aws.local_stack.helpers import load_yaml
 
@@ -75,7 +79,7 @@ class Template(object):
             json.loads(template)
             self.tpl_format = TYPE_JSON
             return
-        except json.JSONDecodeError:
+        except JSONDecodeError:
             pass
 
         try:
