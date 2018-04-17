@@ -1,5 +1,6 @@
 """ PIP module declaration for clouds-aws """
 from os import environ
+from sys import version_info
 
 from setuptools import setup, find_packages
 
@@ -8,10 +9,14 @@ try:
 except KeyError:
     SNAPSHOT = ''
 
+install_requires = ['boto3', 'PyYAML', 'tabulate']
+if version_info < (3, 5):
+    install_requires.append('scandir')
+
 setup(
     name='clouds-aws',
 
-    version='0.3.0%s' % SNAPSHOT,
+    version='0.3.1%s' % SNAPSHOT,
 
     description='A tool for easy handling of AWS Cloudformation stacks as code.',
     long_description='For detailed usage instructions see '
@@ -38,7 +43,11 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: Unix',
 
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
 
         'Topic :: System :: Installation/Setup',
@@ -56,5 +65,5 @@ setup(
         ]
     },
 
-    install_requires=['boto3', 'PyYAML', 'tabulate']
+    install_requires=install_requires
 )
