@@ -8,8 +8,6 @@ try:
 except KeyError:
     SNAPSHOT = ''
 
-install_requires = ['boto3', 'PyYAML', 'tabulate', 'scandir']
-
 setup(
     name='clouds-aws',
 
