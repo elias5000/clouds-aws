@@ -18,6 +18,7 @@ def add_parser(subparsers):
     parser = subparsers.add_parser('events', help='output all events of a stack')
     parser.add_argument('-f', '--follow', action='store_true',
                         help='follow events until stack transition complete')
+    parser.add_argument('-l', '--limit', help='limit number of most recent events displayed')
     parser.add_argument('stack', help='stack name')
     parser.set_defaults(func=cmd_events)
 
@@ -30,7 +31,12 @@ def cmd_events(args):
     """
     stack = RemoteStack(args.stack, args.region)
     stack.load()
-    print_events(stack.events)
+
+    events = stack.events
+    if args.limit:
+        events = events[int(args.limit) * -1:]
+
+    print_events(events)
 
     # poll until stable state is reached
     if args.follow:
