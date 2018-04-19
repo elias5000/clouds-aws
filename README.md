@@ -3,10 +3,10 @@ clouds-aws is a tool that aims to ease the handling of Cloudformation stacks as 
 
 ## Features
 
-*    Create, update, and delete stacks from the command line or in scripts
-*    Local file representation of template/parameters of a stack for easy use with SCM
-*    Quickly get the most often required information about your stacks on the commandline or for use in scripts
-*    Normalized template format for better Diffs and human readability
+*   Create, update, and delete stacks from the command line or in scripts
+*   Local file representation of template/parameters of a stack for easy use with SCM
+*   Quickly get the most often required information about your stacks on the commandline or for use in scripts
+*   Normalized template format for better Diffs and human readability
 
 ## Installation
 
@@ -15,6 +15,7 @@ clouds-aws is a tool that aims to ease the handling of Cloudformation stacks as 
 ## Install requirements
 *   boto3
 *   PyYAML
+*   scandir
 *   tabulate
 
 ## Commands
@@ -62,8 +63,8 @@ Output all stack's events since its creation.
 ### format
 Reformat the 'template.json' file of a local stack to a format that serves two purposes:
 
-*    support diffs by indentation and sorting dictionary keys
-*    make it slightly more human readable by reformatting some common structures
+*   support diffs by indentation and sorting dictionary keys
+*   make it slightly more human readable by reformatting some common structures
 
 Example:
 
