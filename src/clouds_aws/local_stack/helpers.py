@@ -49,6 +49,7 @@ def dump_yaml(template):
 
 
 def _general_constructor(loader, tag_suffix, node):
+    # pylint: disable=unused-argument
     """
     Constructor for short function syntax
     :param loader:
