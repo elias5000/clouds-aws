@@ -30,7 +30,7 @@ def cmd_describe(args):
     :return:
     """
     try:
-        stack = RemoteStack(args.stack, args.region)
+        stack = RemoteStack(args.stack, args.region, args.profile)
         stack.load()
 
         if args.json:

@@ -15,12 +15,12 @@ class RemoteStackError(Exception):
 class RemoteStack(object):
     """ Remote CloudFormation stack in AWS """
 
-    def __init__(self, name, region):
+    def __init__(self, name, region, profile):
         """
         Initialize remote stack
         """
         self.name = name
-        self.cfn = CloudFormation(region)
+        self.cfn = CloudFormation(region, profile)
 
         self.template = ""
         self.parameters = {}
@@ -93,10 +93,10 @@ class RemoteStack(object):
         return self.events[num_events:]
 
 
-def list_stacks(region):
+def list_stacks(region, profile):
     """
     List remote stacks
     :param region:
     :return:
     """
-    return CloudFormation(region).list_stacks()
+    return CloudFormation(region, profile).list_stacks()

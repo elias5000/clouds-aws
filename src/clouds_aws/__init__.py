@@ -25,6 +25,8 @@ def main():
                         help='force action (use as global flag deprecated)')
     parser.add_argument('-r', '--region', help='specify region (default: use environment)',
                         nargs='?', default=None)
+    parser.add_argument('-p', '--profile', help='use AWS config profile (default: use environment)',
+                        nargs='?', default=None)
     parser.add_argument('-v', '--verbose', action='store_true', help='loglevel: info')
 
     # add command parser

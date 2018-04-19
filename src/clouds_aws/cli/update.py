@@ -36,9 +36,9 @@ def cmd_update(args):
     :return:
     """
     local_stack = load_local_stack(args.stack)
-    remote_stack = RemoteStack(args.stack, args.region)
+    remote_stack = RemoteStack(args.stack, args.region, args.profile)
 
-    if args.stack in remote_stacks(args.region):
+    if args.stack in remote_stacks(args.region, args.profile):
         remote_stack.load()
         try:
             remote_stack.update(

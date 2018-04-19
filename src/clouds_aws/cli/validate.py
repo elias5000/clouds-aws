@@ -31,7 +31,7 @@ def cmd_validate(args):
     if args.all:
         stacks = local_stacks()
 
-    cfn = CloudFormation(args.region)
+    cfn = CloudFormation(args.region, args.profile)
     success = True
     for stack in stacks:
         LOG.info("Validating stack %s", stack)

@@ -30,25 +30,26 @@ def cmd_dump(args):
     :return:
     """
     if args.all:
-        cfn = CloudFormation(args.region)
+        cfn = CloudFormation(args.region, args.profile)
         stacks = cfn.list_stacks()
     else:
         stacks = args.stack
     for stack in stacks:
-        dump_stack(args.region, stack, args.force)
+        dump_stack(args.region, args.profile, stack, args.force)
 
 
-def dump_stack(region, stack, force):
+def dump_stack(region, profile, stack, force):
     """
     Dump one stack to files
     :param region: aws region
+    :param profile: aws profile name
     :param stack: stack type
     :param force: force overwrite
     :return:
     """
     try:
         LOG.info("Loading remote stack %s", stack)
-        remote = RemoteStack(stack, region)
+        remote = RemoteStack(stack, region, profile)
         remote.load()
 
     except CloudFormationError as err:

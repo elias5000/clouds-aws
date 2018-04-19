@@ -26,7 +26,7 @@ def cmd_list(args):
     """
     stacks = {}
     if args.remote or not (args.remote or args.local):
-        stacks = remote_stacks(args.region)
+        stacks = remote_stacks(args.region, args.profile)
 
     if args.local or not (args.remote or args.local):
         for stack in [key for key in local_stacks() if key not in stacks.keys()]:

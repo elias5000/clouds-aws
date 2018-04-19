@@ -11,7 +11,7 @@ except KeyError:
 setup(
     name='clouds-aws',
 
-    version='0.3.5%s' % SNAPSHOT,
+    version='0.3.6%s' % SNAPSHOT,
 
     description='A tool for easy handling of AWS Cloudformation stacks as code.',
     long_description='For detailed usage instructions see '

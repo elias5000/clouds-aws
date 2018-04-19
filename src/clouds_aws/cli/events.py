@@ -29,7 +29,7 @@ def cmd_events(args):
     :param args:
     :return:
     """
-    stack = RemoteStack(args.stack, args.region)
+    stack = RemoteStack(args.stack, args.region, args.profile)
     stack.load()
 
     events = stack.events
@@ -53,12 +53,14 @@ def poll_events(stack, display=True):
         sleep(5)
         try:
             new_events = stack.poll_events()
+
+            if new_events and display:
+                print_events(new_events)
+            exit_if_transition_finished(stack.events)
+
         except RemoteStackError as err:
             LOG.warning(err)
             exit(0)
-        if new_events and display:
-            print_events(new_events)
-        exit_if_transition_finished(stack.events)
 
 
 def exit_if_transition_finished(events):

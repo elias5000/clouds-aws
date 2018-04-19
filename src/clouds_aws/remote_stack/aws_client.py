@@ -20,15 +20,40 @@ class CloudFormationError(Exception):
 class CloudFormation(object):
     """ AWS API wrapper """
 
-    def __init__(self, region=None):
+    def __init__(self, region, profile):
         """
         Initialize AWS CloudFormation client
         :param region: AWS region
         """
         self.region = region
-        self.client = boto3.client("cloudformation", region)
+        self.profile = profile
+        self.client = self._get_client("cloudformation")
 
         self.remote_stacks = {}
+
+    def _get_client(self, service):
+        """
+        Return AWS client object for a service
+        :param service:
+        :return:
+        """
+        if self.profile:
+            session = boto3.Session(profile_name=self.profile)
+            return session.client(service, self.region)
+
+        return boto3.client(service, self.region)
+
+    def _get_resource(self, service):
+        """
+        Return AWS resource
+        :param service:
+        :return:
+        """
+        if self.profile:
+            session = boto3.Session(profile_name=self.profile)
+            return session.resource(service, self.region)
+
+        return boto3.resource(service, self.region)
 
     def list_stacks(self):
         """
@@ -149,7 +174,7 @@ class CloudFormation(object):
         :param parameters:
         :return:
         """
-        stack = boto3.resource('cloudformation', self.region).Stack(name)
+        stack = self._get_resource("cloudformation").Stack(name)
         stack.update(
             TemplateBody=template.as_string(),
             Parameters=parameters.as_list(),
@@ -162,7 +187,7 @@ class CloudFormation(object):
         :param name: stack name
         :return:
         """
-        stack = boto3.resource('cloudformation', self.region).Stack(name)
+        stack = self._get_resource("cloudformation").Stack(name)
         stack.delete()
 
     def get_template(self, stack):

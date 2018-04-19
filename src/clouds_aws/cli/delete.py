@@ -33,7 +33,7 @@ def cmd_delete(args):
     :param args:
     :return:
     """
-    if args.stack not in remote_stacks(args.region):
+    if args.stack not in remote_stacks(args.region, args.profile):
         LOG.warning("Stack %s does not exist", args.stack)
         exit(1)
 
@@ -42,13 +42,14 @@ def cmd_delete(args):
         exit(1)
 
     try:
-        remote_stack = RemoteStack(args.stack, args.region)
+        remote_stack = RemoteStack(args.stack, args.region, args.profile)
         remote_stack.load()
         remote_stack.delete()
+
+        # poll until stable state is reached
+        if args.events or args.wait:
+            poll_events(remote_stack, args.events)
+
     except ClientError as err:
         LOG.error(err)
         exit(1)
-
-    # poll until stable state is reached
-    if args.events or args.wait:
-        poll_events(remote_stack, args.events)
