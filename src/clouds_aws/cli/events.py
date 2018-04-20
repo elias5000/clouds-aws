@@ -50,7 +50,6 @@ def poll_events(stack, display=True):
     :return:
     """
     while True:
-        sleep(5)
         try:
             new_events = stack.poll_events()
 
@@ -61,6 +60,8 @@ def poll_events(stack, display=True):
         except RemoteStackError as err:
             LOG.warning(err)
             exit(0)
+
+        sleep(5)
 
 
 def exit_if_transition_finished(events):
