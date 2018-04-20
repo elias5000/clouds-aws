@@ -44,5 +44,5 @@ def cmd_delete(args):
     url_data = urlencode({"Session": json.dumps(data)})
 
     with urlopen(FEDERATION_URL % url_data) as res:
-        token = json.load(res)["SigninToken"]
+        token = json.loads(res.read().decode("utf-8"))["SigninToken"]
         print(SIGNIN_URL % token)
