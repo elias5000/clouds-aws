@@ -18,11 +18,8 @@ setup(
 
 Clouds-aws represents CF stacks on the local disk as files (template + parameters).
 It can create or update existing stacks in AWS with a single,
-easy command from local files or dump an exist stack to files.
-Clouds-aws is also suitable for usage in automation.
-
-For detailed usage instructions see 
-https://github.com/elias5000/clouds-aws/blob/master/README.md""",
+easy command from local files or dump an existing stack to files.
+Clouds-aws is also suitable for usage in automation.""",
 
     url='https://github.com/elias5000/clouds-aws',
 
