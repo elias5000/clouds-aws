@@ -11,11 +11,18 @@ except KeyError:
 setup(
     name='clouds-aws',
 
-    version='0.3.7-1%s' % SNAPSHOT,
+    version='0.3.7-2%s' % SNAPSHOT,
 
-    description='A tool for easy handling of AWS Cloudformation stacks as code.',
-    long_description='For detailed usage instructions see '
-                     'https://github.com/elias5000/clouds-aws/blob/master/README.md',
+    description='A tool for easy handling of AWS CloudFormation stacks as code.',
+    long_description="""Clouds-aws a CLI tool easy handling if CloudFormation stacks as code.
+
+Clouds-aws represents CF stacks on the local disk as files (template + parameters).
+It can create or update existing stacks in AWS with a single,
+easy command from local files or dump an exist stack to files.
+Clouds-aws is also suitable for usage in automation.
+
+For detailed usage instructions see 
+https://github.com/elias5000/clouds-aws/blob/master/README.md""",
 
     url='https://github.com/elias5000/clouds-aws',
 
