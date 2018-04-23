@@ -1,9 +1,13 @@
 """ list command parser definition """
 
+import logging
+
 from tabulate import tabulate
 
-from ..local_stack import list_stacks as local_stacks
-from ..remote_stack import list_stacks as remote_stacks
+from clouds_aws.local_stack import list_stacks as local_stacks
+from clouds_aws.remote_stack import list_stacks as remote_stacks
+
+LOG = logging.getLogger(__name__)
 
 
 def add_parser(subparsers):

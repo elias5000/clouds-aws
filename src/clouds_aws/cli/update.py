@@ -38,34 +38,31 @@ def cmd_update(args):
     local_stack = load_local_stack(args.stack)
     remote_stack = RemoteStack(args.stack, args.region, args.profile)
 
-    if args.stack in remote_stacks(args.region, args.profile):
-        remote_stack.load()
-        try:
+    try:
+        if args.stack in remote_stacks(args.region, args.profile):
+            remote_stack.load()
             remote_stack.update(
                 local_stack.template,
                 local_stack.parameters
             )
-        except ClientError as err:
-            if "No updates are to be performed" in str(err):
-                LOG.warning("No updates are to be performed")
-                exit(0)
-            else:
-                LOG.error(err)
-                exit(1)
 
-    elif args.create_missing:
-        try:
+        elif args.create_missing:
             remote_stack.create(
                 local_stack.template,
                 local_stack.parameters
             )
-        except ClientError as err:
-            LOG.error(err)
+
+        else:
+            LOG.error("Stack %s does not exist. Not updating without explicit create", args.stack)
             exit(1)
 
-    else:
-        LOG.error("Stack %s does not exist. Not updating without explicit create", args.stack)
-        exit(1)
+    except ClientError as err:
+        if "No updates are to be performed" in str(err):
+            LOG.warning("No updates are to be performed")
+            exit(0)
+
+        # throw up if not "no updates" case
+        raise err
 
     # poll until stable state is reached
     if args.events or args.wait:

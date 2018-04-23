@@ -2,9 +2,8 @@
 
 import argparse
 import logging
-import sys
 
-import botocore.exceptions
+from botocore.exceptions import ClientError
 
 from .cli import add_parsers
 
@@ -42,4 +41,8 @@ def main():
         LOG.setLevel(logging.DEBUG)
         logging.basicConfig(level=logging.DEBUG)
 
-    args.func(args)
+    try:
+        args.func(args)
+    except ClientError as err:
+        LOG.error(err)
+        exit(1)

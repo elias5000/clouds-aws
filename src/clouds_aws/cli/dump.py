@@ -4,7 +4,7 @@ import logging
 
 from clouds_aws.local_stack import LocalStack
 from clouds_aws.remote_stack import RemoteStack
-from clouds_aws.remote_stack.aws_client import CloudFormation, CloudFormationError
+from clouds_aws.remote_stack.aws_client import CloudFormation
 
 LOG = logging.getLogger(__name__)
 
@@ -47,14 +47,9 @@ def dump_stack(region, profile, stack, force):
     :param force: force overwrite
     :return:
     """
-    try:
-        LOG.info("Loading remote stack %s", stack)
-        remote = RemoteStack(stack, region, profile)
-        remote.load()
-
-    except CloudFormationError as err:
-        LOG.error(err)
-        return
+    LOG.info("Loading remote stack %s", stack)
+    remote = RemoteStack(stack, region, profile)
+    remote.load()
 
     LOG.info("Creating local stack %s", stack)
     local = LocalStack(stack)

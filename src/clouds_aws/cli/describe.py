@@ -5,7 +5,7 @@ import logging
 from tabulate import tabulate
 
 from clouds_aws.local_stack.helpers import dump_json
-from clouds_aws.remote_stack import RemoteStack, CloudFormationError
+from clouds_aws.remote_stack import RemoteStack
 
 LOG = logging.getLogger(__name__)
 
@@ -29,33 +29,28 @@ def cmd_describe(args):
     :param args:
     :return:
     """
-    try:
-        stack = RemoteStack(args.stack, args.region, args.profile)
-        stack.load()
+    stack = RemoteStack(args.stack, args.region, args.profile)
+    stack.load()
 
-        if args.json:
-            print(dump_json({
-                "Parameters": stack.parameters,
-                "Outputs": stack.outputs,
-                "Resources": stack.resources
-            }))
-            return
+    if args.json:
+        print(dump_json({
+            "Parameters": stack.parameters,
+            "Outputs": stack.outputs,
+            "Resources": stack.resources
+        }))
+        return
 
-        if stack.parameters:
-            print(tabulate(sorted(stack.parameters.items()), ("Parameter", "Value")))
-            print()
-
-        if stack.outputs:
-            print(tabulate(sorted(stack.outputs.items()), ("Output", "Value")))
-            print()
-
-        print(tabulate(
-            sorted([(key, val["ResourceType"], val["PhysicalResourceId"])
-                    for key, val in stack.resources.items()]),
-            ("Resource", "Type", "PhysicalId")
-        ))
+    if stack.parameters:
+        print(tabulate(sorted(stack.parameters.items()), ("Parameter", "Value")))
         print()
 
-    except CloudFormationError as err:
-        LOG.error(err)
-        exit(1)
+    if stack.outputs:
+        print(tabulate(sorted(stack.outputs.items()), ("Output", "Value")))
+        print()
+
+    print(tabulate(
+        sorted([(key, val["ResourceType"], val["PhysicalResourceId"])
+                for key, val in stack.resources.items()]),
+        ("Resource", "Type", "PhysicalId")
+    ))
+    print()

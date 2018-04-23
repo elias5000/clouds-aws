@@ -2,8 +2,6 @@
 
 import logging
 
-from botocore.exceptions import ClientError
-
 from clouds_aws.cli.events import poll_events
 from clouds_aws.remote_stack import RemoteStack, list_stacks as remote_stacks
 
@@ -41,7 +39,6 @@ def cmd_delete(args):
         LOG.warning("You have to apply force to delete %s", args.stack)
         exit(1)
 
-    try:
         remote_stack = RemoteStack(args.stack, args.region, args.profile)
         remote_stack.load()
         remote_stack.delete()
@@ -49,7 +46,3 @@ def cmd_delete(args):
         # poll until stable state is reached
         if args.events or args.wait:
             poll_events(remote_stack, args.events)
-
-    except ClientError as err:
-        LOG.error(err)
-        exit(1)

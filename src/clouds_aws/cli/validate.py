@@ -2,8 +2,8 @@
 
 import logging
 
-from clouds_aws.local_stack import list_stacks as local_stacks
 from clouds_aws.cli.common import load_local_stack
+from clouds_aws.local_stack import list_stacks as local_stacks
 from clouds_aws.remote_stack.aws_client import CloudFormation, CloudFormationError
 
 LOG = logging.getLogger(__name__)
