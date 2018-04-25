@@ -39,10 +39,10 @@ def cmd_delete(args):
         LOG.warning("You have to apply force to delete %s", args.stack)
         exit(1)
 
-        remote_stack = RemoteStack(args.stack, args.region, args.profile)
-        remote_stack.load()
-        remote_stack.delete()
+    remote_stack = RemoteStack(args.stack, args.region, args.profile)
+    remote_stack.load()
+    remote_stack.delete()
 
-        # poll until stable state is reached
-        if args.events or args.wait:
-            poll_events(remote_stack, args.events)
+    # poll until stable state is reached
+    if args.events or args.wait:
+        poll_events(remote_stack, args.events)
