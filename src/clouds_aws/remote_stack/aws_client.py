@@ -31,6 +31,9 @@ class CloudFormation(object):
 
         self.remote_stacks = {}
 
+    def __repr__(self):
+        return "CloudFormation({}, {})".format(self.region, self.profile)
+
     def _get_client(self, service):
         """
         Return AWS client object for a service

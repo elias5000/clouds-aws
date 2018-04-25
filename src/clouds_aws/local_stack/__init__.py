@@ -33,6 +33,9 @@ class LocalStack(object):
         self.template = Template(self.path)
         self.parameters = Parameters(self.path)
 
+    def __repr__(self):
+        return "LocalStack({})".format(self.name)
+
     def save(self):
         """
         Save stack to disk

@@ -50,6 +50,12 @@ class Template(object):
             self.tpl_format = TYPE_DEFAULT
             self._template = ""
 
+    def __repr__(self):
+        return "Template({})".format(self.path)
+
+    def __str__(self):
+        return self._template
+
     def load(self):
         """
         Load template from file
@@ -98,7 +104,7 @@ class Template(object):
         Return template as string
         :return:
         """
-        return self._template
+        return str(self)
 
     def as_dict(self):
         """

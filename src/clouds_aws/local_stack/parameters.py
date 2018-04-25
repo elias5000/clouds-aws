@@ -26,6 +26,12 @@ class Parameters(object):
 
         self.load()
 
+    def __repr__(self):
+        return "Parameters({})".format(self.path)
+
+    def __str__(self):
+        return str(self.parameters)
+
     def load(self):
         """
         Load parameters from file

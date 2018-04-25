@@ -30,6 +30,9 @@ class RemoteStack(object):
 
         self.events = []
 
+    def __repr__(self):
+        return "RemoteStack()".format(self.name, self.cfn.region, self.cfn.profile)
+
     def load(self):
         """
         Load template/parameters from CloudFormation
