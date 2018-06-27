@@ -1,5 +1,6 @@
 """ Load command interpreter """
 
+import clouds_aws.cli.change
 import clouds_aws.cli.clone
 import clouds_aws.cli.console
 import clouds_aws.cli.delete
@@ -18,6 +19,7 @@ def add_parsers(subparsers):
     :param subparsers: argparse subparsers
     :return:
     """
+    clouds_aws.cli.change.add_parser(subparsers)
     clouds_aws.cli.clone.add_parser(subparsers)
     clouds_aws.cli.console.add_parser(subparsers)
     clouds_aws.cli.delete.add_parser(subparsers)

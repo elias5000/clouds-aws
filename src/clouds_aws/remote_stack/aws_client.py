@@ -181,7 +181,7 @@ class CloudFormation(object):
         stack.update(
             TemplateBody=template.as_string(),
             Parameters=parameters.as_list(),
-            Capabilities=CAPABILITIES,
+            Capabilities=CAPABILITIES
         )
 
     def delete_stack(self, name):
@@ -207,6 +207,78 @@ class CloudFormation(object):
             return dump_json(tpl_body)
 
         return tpl_body
+
+    def create_change_set(self, stack, set_name, template, parameters, **kwargs):
+        """
+        Create change set in AWS
+        :param stack: stack name
+        :param set_name: Change set name
+        :param template:
+        :param parameters:
+        :return:
+        """
+        set_type = "CREATE"
+        stacks = self.list_stacks()
+        if stack in stacks and stacks[stack] != "REVIEW_IN_PROGRESS":
+            set_type = "UPDATE"
+
+        response = self.client.create_change_set(
+            StackName=stack,
+            TemplateBody=template,
+            Parameters=parameters,
+            Capabilities=CAPABILITIES,
+            ChangeSetName=set_name,
+            ChangeSetType=set_type,
+            Description=kwargs.get("description", "")
+        )
+        LOG.info("Created change set: %s", response["Id"])
+
+    def list_change_sets(self, stack):
+        """
+        Retun a list of change sets
+        :param stack:
+        :return:
+        """
+        # FIXME: Paginate if required
+        raw_change_sets = self.client.list_change_sets(StackName=stack)
+        return raw_change_sets["Summaries"]
+
+    def describe_change_set(self, stack, name):
+        """
+        Returns a change set description
+        :param stack:
+        :param name:
+        :return:
+        """
+        # FIXME: Paginate if required
+        return self.client.describe_change_set(
+            StackName=stack,
+            ChangeSetName=name
+        )
+
+    def delete_change_set(self, stack, name):
+        """
+        Delete a change set in AWS
+        :param stack:
+        :param name:
+        :return:
+        """
+        self.client.delete_change_set(
+            StackName=stack,
+            ChangeSetName=name
+        )
+
+    def execute_change_set(self, stack, name):
+        """
+        Execute change set in AWS
+        :param stack:
+        :param name:
+        :return:
+        """
+        self.client.execute_change_set(
+            StackName=stack,
+            ChangeSetName=name
+        )
 
     def validate(self, tpl_body):
         """
