@@ -222,15 +222,26 @@ class CloudFormation(object):
         if stack in stacks and stacks[stack] != "REVIEW_IN_PROGRESS":
             set_type = "UPDATE"
 
-        response = self.client.create_change_set(
-            StackName=stack,
-            TemplateBody=template,
-            Parameters=parameters,
-            Capabilities=CAPABILITIES,
-            ChangeSetName=set_name,
-            ChangeSetType=set_type,
-            Description=kwargs.get("description", "")
-        )
+        description = kwargs.get("description")
+        if description:
+            response = self.client.create_change_set(
+                StackName=stack,
+                TemplateBody=template,
+                Parameters=parameters,
+                Capabilities=CAPABILITIES,
+                ChangeSetName=set_name,
+                ChangeSetType=set_type,
+                Description=description
+            )
+        else:
+            response = self.client.create_change_set(
+                StackName=stack,
+                TemplateBody=template,
+                Parameters=parameters,
+                Capabilities=CAPABILITIES,
+                ChangeSetName=set_name,
+                ChangeSetType=set_type
+            )
         LOG.info("Created change set: %s", response["Id"])
 
     def list_change_sets(self, stack):

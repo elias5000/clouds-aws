@@ -1,9 +1,10 @@
 import logging
-
+from clouds_aws.local_stack.helpers import dump_yaml
 LOG = logging.getLogger(__name__)
 FIELDMAP = {
     "Resource": "LogicalResourceId",
     "Type": "ResourceType",
+    "PhysicalId": "PhysicalResourceId",
     "Action": "Action"
 }
 
@@ -54,10 +55,13 @@ class ChangeSet:
         :return:
         """
         lines = []
+
+        LOG.info(dump_yaml(self.change))
+
         for change in self.change["Changes"]:
             line = {}
             for header, key in FIELDMAP.items():
-                line[header] = change["ResourceChange"][key]
+                line[header] = change["ResourceChange"].get(key)
             lines.append(line)
 
         return lines
