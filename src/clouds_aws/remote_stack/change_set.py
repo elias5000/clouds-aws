@@ -1,11 +1,33 @@
 import logging
+
 from clouds_aws.local_stack.helpers import dump_yaml
+
 LOG = logging.getLogger(__name__)
 FIELDMAP = {
-    "Resource": "LogicalResourceId",
-    "Type": "ResourceType",
-    "PhysicalId": "PhysicalResourceId",
-    "Action": "Action"
+    "Resource": {
+        "type": "string",
+        "key": "LogicalResourceId",
+    },
+    "Type": {
+        "type": "string",
+        "key": "ResourceType",
+    },
+    "PhysicalId": {
+        "type": "string",
+        "key": "PhysicalResourceId",
+    },
+    "Action": {
+        "type": "string",
+        "key": "Action",
+    },
+    "Scope": {
+        "type": "list",
+        "key": "Scope",
+    },
+    "Replacement": {
+        "type": "string",
+        "key": "Replacement"
+    }
 }
 
 
@@ -56,12 +78,17 @@ class ChangeSet:
         """
         lines = []
 
-        LOG.info(dump_yaml(self.change))
-
         for change in self.change["Changes"]:
             line = {}
-            for header, key in FIELDMAP.items():
-                line[header] = change["ResourceChange"].get(key)
+            for header, properties in FIELDMAP.items():
+                if change["Type"] == "Resource":
+                    if properties["type"] == "string":
+                        line[header] = change["ResourceChange"].get(properties["key"])
+                    elif properties["type"] == "list":
+                        line[header] = ", ".join(change["ResourceChange"].get(properties["key"]))
+                else:
+                    LOG.warning("Encountered unknown change type.")
+                    continue
             lines.append(line)
 
         return lines

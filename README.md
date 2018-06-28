@@ -4,9 +4,11 @@ clouds-aws is a tool that aims to ease the handling of Cloudformation stacks as 
 ## Features
 
 *   Create, update, and delete stacks from the command line or in scripts
+*   Support for change sets
+*   Supports JSON and YAML templates
 *   Local file representation of template/parameters of a stack for easy use with SCM
 *   Quickly get the most often required information about your stacks on the commandline or for use in scripts
-*   Normalized template format for better Diffs and human readability
+*   Normalized template format for better Diffs and human readability (JSON only)
 
 ## Installation
 
@@ -97,6 +99,23 @@ Example:
 You can run the command blocking to make it wait for the stack update to finish before terminating by using --wait or --events:
 
     clouds update --events app-server
+
+### change
+Use change sets to preview changes that will be performed on the stack
+
+Examples:
+
+    # create new change set
+    clouds change create app-server new-elb-certificate -d "Update the ELB to use the new certificate"
+    
+    # get an overview of changes
+    clouds change describe app-server new-elb-certificate
+    
+    # get a detailed description of all the changes
+    clouds change describe app-server new-elb-certificate --yaml
+    
+    # execute a change set (and tail all the stack events until finished)
+    clouds change execute --events app-server new-elb-certificate
 
 ## Attribution
 [clouds](https://github.com/cristim/clouds) was first written in Ruby by [Cristian Măgherușan-Stanciu](https://github.com/cristim). Since it is no longer actively developed I completely rewrote clouds in Python adding all the features I missed while using the original clouds almost every day since it was first developed. Thanks Cristian, for all the hours of work I saved!
