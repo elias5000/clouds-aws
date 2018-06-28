@@ -2,7 +2,9 @@
 
 import logging
 
+from clouds_aws.local_stack import Template, Parameters
 from clouds_aws.remote_stack.aws_client import CloudFormation, CloudFormationError
+from clouds_aws.remote_stack.change_set import ChangeSet
 
 LOG = logging.getLogger(__name__)
 
@@ -29,22 +31,34 @@ class RemoteStack(object):
         self.resources = {}
 
         self.events = []
+        self.loaded = False
+
+        self.change_sets = {}
 
     def __repr__(self):
-        return "RemoteStack()".format(self.name, self.cfn.region, self.cfn.profile)
+        return "RemoteStack({}, {}, {})".format(self.name, self.cfn.region, self.cfn.profile)
 
     def load(self):
         """
         Load template/parameters from CloudFormation
         :return:
         """
-        stack_data = self.cfn.describe_stack(self.name)
+        try:
+            stack_data = self.cfn.describe_stack(self.name)
+        except CloudFormationError as err:
+            LOG.error(err)
+            return
+
         self.parameters = stack_data["Parameters"]
         self.outputs = stack_data["Outputs"]
         self.resources = stack_data["Resources"]
 
         self.template = self.cfn.get_template(self.name)
         self._update_events()
+
+        self.change_sets = self.list_change_sets()
+
+        self.loaded = True
 
     def create(self, template, parameters):
         """
@@ -72,6 +86,31 @@ class RemoteStack(object):
         :return:
         """
         self.cfn.delete_stack(self.name)
+
+    def get_change_set(self, name):
+        """
+        Return change details
+        :param name:
+        :return:
+        """
+        change = ChangeSet(self, name)
+        change.load()
+        return change
+
+    def list_change_sets(self):
+        """
+        Return dict of change sets
+        :return:
+        """
+        change_sets = {}
+        raw_change_sets = self.cfn.list_change_sets(self.name)
+        for change_set in raw_change_sets:
+            change_sets[change_set["ChangeSetName"]] = [
+                change_set["ChangeSetName"],
+                change_set.get("Description"),
+                change_set["ExecutionStatus"]
+            ]
+        return change_sets
 
     def _update_events(self):
         """
