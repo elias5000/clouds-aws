@@ -250,7 +250,6 @@ class CloudFormation(object):
         :param stack:
         :return:
         """
-        # FIXME: Paginate if required
         raw_change_sets = self.client.list_change_sets(StackName=stack)
         return raw_change_sets["Summaries"]
 

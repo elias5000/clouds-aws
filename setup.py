@@ -3,15 +3,10 @@ from os import environ
 
 from setuptools import setup, find_packages
 
-try:
-    SNAPSHOT = 'dev%s' % environ['BUILD_NUMBER']
-except KeyError:
-    SNAPSHOT = ''
-
 setup(
     name='clouds-aws',
 
-    version='0.3.8-1%s' % SNAPSHOT,
+    version='0.3.8',
 
     description='A tool for easy handling of AWS CloudFormation stacks as code.',
     long_description="""Clouds-aws a CLI tool easy handling if CloudFormation stacks as code.

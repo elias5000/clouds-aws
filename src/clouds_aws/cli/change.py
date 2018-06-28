@@ -132,13 +132,13 @@ def cmd_describe(args):
             print(dump_json(remote_stack.get_change_set(args.name).change["Changes"]))
         elif args.yaml:
             print(dump_yaml(remote_stack.get_change_set(args.name).change["Changes"]))
-        else:
-            changes = remote_stack.get_change_set(args.name).changes()
-            print(tabulate(changes, headers='keys'))
+        return
 
     except AttributeError:
-        changes = remote_stack.get_change_set(args.name).changes()
-        print(tabulate(changes, headers='keys'))
+        pass
+
+    changes = remote_stack.get_change_set(args.name).changes()
+    print(tabulate(changes, headers='keys'))
 
 
 def cmd_execute(args):

@@ -1,6 +1,5 @@
+""" Change set class """
 import logging
-
-from clouds_aws.local_stack.helpers import dump_yaml
 
 LOG = logging.getLogger(__name__)
 FIELDMAP = {
@@ -46,7 +45,7 @@ class ChangeSet:
         self.change = {}
 
     def __repr__(self):
-        return "ChangeSet({}, {}, {})".format(self.stack, self.name)
+        return "ChangeSet({}, {})".format(self.stack, self.name)
 
     def load(self):
         """

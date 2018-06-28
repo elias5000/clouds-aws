@@ -4,4 +4,3 @@
 
 PY_FILES=$(find src -name \*.py -not -path ./virtualenv/\* -not -path ./.vscode/\*)
 pylint ${PY_FILES}
-pycodestyle --max-line-length=100 ${PY_FILES}
