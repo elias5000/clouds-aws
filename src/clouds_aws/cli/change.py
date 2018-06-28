@@ -91,6 +91,11 @@ def cmd_create(args):
                 change_set.load()
                 if change_set.change["Status"] == "CREATE_COMPLETE":
                     break
+
+                if change_set.change["Status"] == "FAILED":
+                    LOG.error("Failed to create change set.")
+                    exit(1)
+
                 # poll for completion
                 sleep(3)
                 loop += 1
@@ -112,6 +117,7 @@ def cmd_list(args):
     try:
         remote_stack.load()
         if remote_stack.change_sets:
+            LOG.info(dump_yaml(remote_stack.get_change_set('change').change))
             print(tabulate(remote_stack.change_sets.values(), ("Name", "Description", "Status")))
 
     except ClientError as err:
