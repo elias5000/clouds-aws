@@ -93,7 +93,7 @@ def cmd_create(args):
                     break
 
                 if change_set.change["Status"] == "FAILED":
-                    LOG.error("Failed to create change set.")
+                    LOG.error("Failed to create change set: %s", change_set.change["StatusReason"])
                     exit(1)
 
                 # poll for completion
