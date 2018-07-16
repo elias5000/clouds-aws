@@ -137,7 +137,7 @@ def cmd_describe(args):
         if args.json:
             print(dump_json(remote_stack.get_change_set(args.name).change["Changes"]))
             return
-        elif args.yaml:
+        if args.yaml:
             print(dump_yaml(remote_stack.get_change_set(args.name).change["Changes"]))
             return
 

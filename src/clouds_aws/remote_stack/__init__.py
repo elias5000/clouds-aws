@@ -14,7 +14,7 @@ class RemoteStackError(Exception):
     pass
 
 
-class RemoteStack(object):
+class RemoteStack:
     """ Remote CloudFormation stack in AWS """
 
     def __init__(self, name, region, profile):

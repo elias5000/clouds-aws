@@ -12,7 +12,7 @@ class ParameterError(Exception):
     pass
 
 
-class Parameters(object):
+class Parameters:
     """ Parameters class """
 
     def __init__(self, stack_path):

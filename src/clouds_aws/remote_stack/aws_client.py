@@ -17,7 +17,7 @@ class CloudFormationError(Exception):
     pass
 
 
-class CloudFormation(object):
+class CloudFormation:
     """ AWS API wrapper """
 
     def __init__(self, region, profile):
@@ -260,7 +260,6 @@ class CloudFormation(object):
         :param name:
         :return:
         """
-        # FIXME: Paginate if required
         return self.client.describe_change_set(
             StackName=stack,
             ChangeSetName=name

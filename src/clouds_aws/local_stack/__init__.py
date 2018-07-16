@@ -18,7 +18,7 @@ class LocalStackError(Exception):
     pass
 
 
-class LocalStack(object):
+class LocalStack:
     """ File representation of CloudFormation stack """
 
     def __init__(self, name):

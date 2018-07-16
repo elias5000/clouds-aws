@@ -26,7 +26,7 @@ class TemplateError(Exception):
     pass
 
 
-class Template(object):
+class Template:
     """ CloudFormation template"""
 
     def __init__(self, stack_path):
@@ -114,11 +114,10 @@ class Template(object):
         if self.tpl_format == TYPE_JSON:
             return json.loads(self._template)
 
-        elif self.tpl_format == TYPE_YAML:
+        if self.tpl_format == TYPE_YAML:
             return load_yaml(self._template)
 
-        else:
-            raise TemplateError("Invalid template format value")
+        raise TemplateError("Invalid template format value")
 
     def exists(self):
         """
