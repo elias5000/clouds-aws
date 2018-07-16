@@ -117,7 +117,6 @@ def cmd_list(args):
     try:
         remote_stack.load()
         if remote_stack.change_sets:
-            LOG.info(dump_yaml(remote_stack.get_change_set('change').change))
             print(tabulate(remote_stack.change_sets.values(), ("Name", "Description", "Status")))
 
     except ClientError as err:
