@@ -63,21 +63,12 @@ class CloudFormation:
         Return all remote stacks
         :return:
         """
+        paginator = self.client.get_paginator('describe_stacks')
         remote_stacks = {}
 
-        stacks = self.client.describe_stacks()
-        for stack in stacks["Stacks"]:
-            remote_stacks[stack["StackName"]] = stack["StackStatus"]
-
-        # paginate if necessary
-        while True:
-            try:
-                next_token = stacks["NextToken"]
-                stacks = self.client.describe_stacks(NextToken=next_token)
-                for stack in stacks["Stacks"]:
-                    remote_stacks[stack["StackName"]] = stack["StackStatus"]
-            except KeyError:
-                break
+        for page in paginator.paginate():
+            for stack in page["Stacks"]:
+                remote_stacks[stack["StackName"]] = stack["StackStatus"]
 
         return remote_stacks
 
@@ -90,20 +81,12 @@ class CloudFormation:
         if stack not in self.list_stacks():
             raise CloudFormationError("No such stack: %s" % stack)
 
+        paginator = self.client.get_paginator('describe_stack_events')
         events = []
-        raw_events = self.client.describe_stack_events(StackName=stack)
-        for raw_event in raw_events["StackEvents"]:
-            events.append(raw_event)
 
-        while True:
-            try:
-                next_token = raw_events["NextToken"]
-                raw_events = self.client.describe_stack_events(StackName=stack,
-                                                               NextToken=next_token)
-                for raw_event in raw_events["StackEvents"]:
-                    events.append(raw_event)
-            except KeyError:
-                break
+        for page in paginator.paginate(StackName=stack):
+            for raw_event in page["StackEvents"]:
+                events.append(raw_event)
 
         return reversed(events)
 
