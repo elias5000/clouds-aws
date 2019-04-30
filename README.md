@@ -119,10 +119,11 @@ Examples:
 
 ## local stacks folder
 Clouds assumes the stacks to be located in a folder named 'stacks' inside the current work directory.
-Each stack is represented by a folder identical with the stack which must contain one template file in either
-yaml or json format named 'template.yaml' or 'template.json'. It may also contain a file 'parameters.yaml' which
-contains a hash defining all values to be applied to parameters in the template during stack creation and update.
+Each stack is represented by a folder identical with the stack name which must contain one template file in either
+yaml or json format named 'template.yaml' or 'template.json'. It may additionally contain a file 'parameters.yaml' which
+contains a hash defining all values to be applied to parameters of the template during stack creation and update.
 The parameters.yaml must be present if the template contains at least one parameter that has no default value defined.
+Please note that numeric values must be quoted if the parameter is of a string type.
 
     stacks
     └── mystack
