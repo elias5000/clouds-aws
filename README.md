@@ -117,5 +117,17 @@ Examples:
     # execute a change set (and tail all the stack events until finished)
     clouds change execute --events app-server new-elb-certificate
 
+## local stacks folder
+Clouds assumes the stacks to be located in a folder named 'stacks' inside the current work directory.
+Each stack is represented by a folder identical with the stack which must contain one template file in either
+yaml or json format named 'template.yaml' or 'template.json'. It may also contain a file 'parameters.yaml' which
+contains a hash defining all values to be applied to parameters in the template during stack creation and update.
+The parameters.yaml must be present if the template contains at least one parameter that has no default value defined.
+
+    stacks
+    └── mystack
+        ├── parameters.yaml
+        └── template.json
+
 ## Attribution
 [clouds](https://github.com/cristim/clouds) was first written in Ruby by [Cristian Măgherușan-Stanciu](https://github.com/cristim). Since it is no longer actively developed I completely rewrote clouds in Python adding all the features I missed while using the original clouds almost every day since it was first developed. Thanks Cristian, for all the hours of work I saved!
