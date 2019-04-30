@@ -67,4 +67,4 @@ def load_yaml(data):
     :return:
     """
     yaml.add_multi_constructor(u'!', _general_constructor)
-    return yaml.load(data)
+    return yaml.load(data, Loader=yaml.FullLoader)
