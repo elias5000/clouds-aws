@@ -1,12 +1,11 @@
 """ PIP module declaration for clouds-aws """
-from os import environ
 
 from setuptools import setup, find_packages
 
 setup(
     name='clouds-aws',
 
-    version='0.3.9',
+    version='0.4.0',
 
     description='A tool for easy handling of AWS CloudFormation stacks as code.',
     long_description="""Clouds-aws a CLI tool easy handling if CloudFormation stacks as code.
@@ -57,5 +56,10 @@ Clouds-aws is also suitable for usage in automation.""",
         ]
     },
 
-    install_requires=('boto3', 'PyYAML', 'tabulate', 'scandir')
+    install_requires=(
+        'boto3',
+        'ruamel.yaml',
+        'scandir',
+        'tabulate',
+    )
 )

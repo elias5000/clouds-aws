@@ -1,9 +1,11 @@
 """ Common helper functions """
 
 import json
-import re
 
-import yaml
+import re
+from ruamel.yaml import YAML
+from ruamel.yaml.compat import StringIO
+
 
 
 def dump_json(template):
@@ -45,19 +47,12 @@ def dump_yaml(template):
     :param template:
     :return:
     """
-    return yaml.dump(template, default_flow_style=False, explicit_start=True)
+    yaml = YAML()
+    yaml.preserve_quotes = True
 
-
-def _general_constructor(loader, tag_suffix, node):
-    # pylint: disable=unused-argument
-    """
-    Constructor for short function syntax
-    :param loader:
-    :param tag_suffix:
-    :param node:
-    :return:
-    """
-    return node.value
+    stream = StringIO()
+    yaml.dump(template, stream)
+    return stream.getvalue()
 
 
 def load_yaml(data):
@@ -66,5 +61,6 @@ def load_yaml(data):
     :param data:
     :return:
     """
-    yaml.add_multi_constructor(u'!', _general_constructor)
-    return yaml.load(data, Loader=yaml.FullLoader)
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    return yaml.load(data)

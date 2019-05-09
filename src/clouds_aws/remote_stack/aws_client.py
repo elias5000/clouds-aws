@@ -129,7 +129,7 @@ class CloudFormation:
             for resource in resources:
                 stack_data['Resources'].update({resource['LogicalResourceId']: {
                     'ResourceType': resource['ResourceType'],
-                    'PhysicalResourceId': resource['PhysicalResourceId']
+                    'PhysicalResourceId': resource.get('PhysicalResourceId')
                 }})
 
         return stack_data

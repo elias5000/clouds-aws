@@ -3,4 +3,4 @@
 dist
 stacks/*
 venv
-virtualenv
+.virtualenv

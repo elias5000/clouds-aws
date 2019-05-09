@@ -10,8 +10,6 @@ except ImportError:
 import logging
 from os import path, unlink
 
-import yaml
-
 from clouds_aws.local_stack.helpers import load_yaml
 
 LOG = logging.getLogger(__name__)
@@ -94,7 +92,8 @@ class Template:
             load_yaml(template)
             self.tpl_format = TYPE_YAML
             return
-        except yaml.YAMLError:
+        except yaml.YAMLError as err:
+            LOG.warning(err)
             pass
 
         raise TemplateError("Unable to determine template format")
