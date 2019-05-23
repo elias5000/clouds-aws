@@ -21,10 +21,10 @@ def add_parser(subparsers):
     """
     parser = subparsers.add_parser('console', help='get web console login URL')
     parser.add_argument('--export', action="store_true", help="export credentials for CLI use")
-    parser.set_defaults(func=cmd_delete)
+    parser.set_defaults(func=cmd_login)
 
 
-def cmd_delete(args):
+def cmd_login(args):
     """
     Return login URL for assumed role profile
     :param args:
