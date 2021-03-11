@@ -1,6 +1,5 @@
 *.egg-info
 *.pyc
-dist
-stacks/*
-venv
-.virtualenv
+/stacks/*
+/build
+/dist
