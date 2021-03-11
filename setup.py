@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(
     name='clouds-aws',
 
-    version='0.4.0',
+    version='0.4.1',
 
     description='A tool for easy handling of AWS CloudFormation stacks as code.',
     long_description="""Clouds-aws a CLI tool easy handling if CloudFormation stacks as code.
