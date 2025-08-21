@@ -1,9 +1,7 @@
 """ LocalStack class """
 
 import logging
-from os import path, curdir, mkdir
-
-from scandir import scandir
+from os import path, curdir, mkdir, scandir
 
 from clouds_aws.local_stack.parameters import Parameters
 from clouds_aws.local_stack.template import Template, TemplateError, TYPE_YAML, TYPE_JSON

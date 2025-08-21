@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(
     name='clouds-aws',
 
-    version='0.4.2',
+    version='0.4.3',
 
     description='A tool for easy handling of AWS CloudFormation stacks as code.',
     long_description="""Clouds-aws a CLI tool easy handling if CloudFormation stacks as code.
@@ -37,9 +37,9 @@ Clouds-aws is also suitable for usage in automation.""",
         'Operating System :: Unix',
 
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
 
         'Topic :: System :: Installation/Setup',
         'Topic :: Utilities'
@@ -59,7 +59,6 @@ Clouds-aws is also suitable for usage in automation.""",
     install_requires=(
         'boto3',
         'ruamel.yaml',
-        'scandir',
         'tabulate',
     )
 )
